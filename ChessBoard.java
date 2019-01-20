@@ -29,7 +29,12 @@ public class ChessBoard {
 
     // Methods
 
-    private boolean putPiece() {
+    public boolean putPiece(ChessPiece p) {
+        board[p.x][p.y] = p;
         // TODO:
+    }
+
+    public void printBoard() {
+        // TODO: Print out the board
     }
 }

@@ -8,6 +8,8 @@ public class ChessPiece {
     int y;
     int color;  // 0 stands for black, 1 for white
     boolean isObstacle;
+    // although whether pieces are obstacles or not does not affect the game
+    // it has something to do with GUI, so we'd better put it there
 
     // Constructors
 
@@ -26,16 +28,14 @@ public class ChessPiece {
 
     // Methods
 
-    private List<ChessPiece> possiblePositions(boolean putObstacle) {
-        // the arg specifies whether we're outputing a list of obstacles of normal chesses
-        // although whether pieces are obstacles or not does not affect the game
-        // it has something to do with GUI, so we'd better put it there
+    private List<ChessPiece> possiblePositions(ChessBoard board, boolean putObstacle) {
+        // @param boolean putObstacle specifies the property of the output ChessPiece - whether they're obstacles or not
         // TODO: implement the queen-like possible position determination
     }
 
     // returns how many positions this piece can go
-    private int freedom() {
-        return this.possiblePositions(false).size();
+    private int freedom(ChessBoard board) {
+        return this.possiblePositions(board, false).size();
     }
 
 }
