@@ -26,21 +26,19 @@ public class Amazons {
         ChessBoard cb = new ChessBoard();
         Scanner sc = new Scanner(System.in);
         boolean ok = false;
+        cb.printBoard();
+        System.out.println("0 2 3 3 3 4 means \nmove the chess on (0,2) to (3,3) \nand place an obstacle on (3,4)\n");
         do {
             ok = true;
             clrscr();   // I dunno why this doesn' work...
-            System.out.println("Put pieces with command like \"3 3 black t\"");
+            System.out.printf("It is turn for %s.\n", cb.colorForTurn() == 0 ? "+" : "-");
             int x = sc.nextInt();
             int y = sc.nextInt();
-            String color = sc.next();
-            boolean isObstacle = sc.next().equals("t") ? true : false;
-            if (ChessPiece.sanityCheck(x, y, color, isObstacle)) {
-                if (!cb.putPiece(new ChessPiece(x, y, color, isObstacle))) {
-                    System.out.println("Illegal input. Please try again.");
-                    ok = false;
-                    continue;
-                }
-            } else {
+            int xx = sc.nextInt();
+            int yy = sc.nextInt();
+            int xxx = sc.nextInt();
+            int yyy = sc.nextInt();
+            if(!cb.movePiece(x, y, xx, yy, xxx, yyy)) {
                 System.out.println("Illegal input. Please try again.");
                 ok = false;
                 continue;
