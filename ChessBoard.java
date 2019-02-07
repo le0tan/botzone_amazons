@@ -80,7 +80,7 @@ public class ChessBoard {
             return false;
         } else {
             ChessPiece temp = board[src_x][src_y];
-            board[src_x][src_y] = null;
+            removePiece(src_x, src_y);
             board[tar_x][tar_y] = temp;
             board[obs_x][obs_y] = new ChessPiece(obs_x, obs_y, 2, true);
             turn++;
