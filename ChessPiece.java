@@ -39,7 +39,7 @@ public class ChessPiece {
 
     // Methods
     
-    private List<Pairs> possiblePositions(ChessBoard board) {
+    public List<Pairs> possiblePositions(ChessBoard board) {
         // @param boolean putObstacle specifies the property of the output ChessPiece -
         // whether they're obstacles or not
         List<Pairs> positions= new ArrayList<Pairs>();
@@ -49,7 +49,7 @@ public class ChessPiece {
           if(i!=0||j!=0) {
              position.x=this.x+i;
              position.y=this.y+j;
-             while(board.hasPiece(position.x,position.y)) {
+             while(!board.hasPiece(position.x,position.y)) {
                  positions.add(position);
                  position.x=position.x+i;
                  position.y=position.y+j;
@@ -59,7 +59,7 @@ public class ChessPiece {
     }
 
     // returns how many positions this piece can go
-    private int freedom(ChessBoard board) {
+    public int freedom(ChessBoard board) {
         return this.possiblePositions(board).size();
     }
 
@@ -89,7 +89,7 @@ public class ChessPiece {
         }
     }
 
-    private class Pairs {
+    public class Pairs {
         int x;
         int y;
     }

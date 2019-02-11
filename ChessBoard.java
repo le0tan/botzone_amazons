@@ -88,13 +88,13 @@ public class ChessBoard {
         }
     }
 
-    public boolean irremovable(ChessPiece chess) {
-        for(int i=-1;i<=1;i++)
-         for(int j=-1;j<=1;j++) {
-             if(!hasPiece(i,j)) return false;
-         }
-        return true;
-    }
+    // public boolean irremovable(ChessPiece chess) {
+    //     for(int i=-1;i<=1;i++)
+    //      for(int j=-1;j<=1;j++) {
+    //          if(!hasPiece(chess.x+i,chess.y+j)||!(i!=)) return false;
+    //      }
+    //     return true;
+    // }
 
     public int declareResult() {
         // 0 stands for black wins
@@ -102,12 +102,12 @@ public class ChessBoard {
         // -1 stands for game continues
         int counter=0;
         for(int i=0;i<4;i++) {
-            if(irremovable(this.black[i])) counter++;
+            if(this.black[i].freedom(this) == 0) counter++;
         }
         if(counter==4) return 0;
         counter=0;
         for(int i=0;i<4;i++) {
-            if(irremovable(this.white[i])) counter++;
+            if(this.white[i].freedom(this) == 0) counter++;
         }
         if(counter==4) return 1;
         return -1;
