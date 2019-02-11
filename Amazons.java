@@ -43,9 +43,9 @@ public class Amazons {
             // List<Pairs> possible = cb.getPiece(x, y).possiblePositions(cb);
             // System.out.println("Possible positions:");
             // }
-            for (Pairs p : possible) {
-                System.out.printf("(%d, %d) ", p.x, p.y);
-            }
+            // for (Pairs p : possible) {
+            //     System.out.printf("(%d, %d) ", p.x, p.y);
+            // }
             System.out.println();
             if (!cb.movePiece(x, y, xx, yy, xxx, yyy)) {
                 System.out.println("Illegal input. Please try again.");
