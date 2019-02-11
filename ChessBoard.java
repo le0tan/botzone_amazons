@@ -5,29 +5,31 @@ public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
     int turn;
+    int[][] coordBlack = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
+    int[][] coordWhite = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
+    ChessPiece[] black = new ChessPiece[4];
+    ChessPiece[] white = new ChessPiece[4]; 
 
     // Constructor
 
     ChessBoard() {
         turn = 1;
-        // 0,2; 2,0; 5,0; 7,2
-        int[][] coordBlack = { { 0, 2, 5, 7 }, { 2, 0, 0, 2 } };
         for (int i = 0; i < 4; i++) {
-            this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1,
-                    false);
+            this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], 
+                    coordBlack[1][i], 1,false);
+            this.black[i] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1,false);
         }
 
-        // 0,5; 2,7; 5,7; 7,5
-        int[][] coordWhite = { { 0, 2, 5, 7 }, { 5, 7, 7, 5 } };
         for (int i = 0; i < 4; i++) {
-            this.board[coordWhite[0][i]][coordWhite[1][i]] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0,
-                    false);
+            this.board[coordWhite[0][i]][coordWhite[1][i]] = new ChessPiece(coordWhite[0][i], 
+                    coordWhite[1][i], 0,false);
+            this.white[i]= new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0, false);
         }
     }
 
     // Methods
 
-    private boolean hasPiece(int x, int y) {
+    public boolean hasPiece(int x, int y) {
         if (!withinBoard(x, y)) {
             return false;
         } else {
@@ -64,10 +66,8 @@ public class ChessBoard {
         return hasPiece(src_x, src_y) 
             && board[src_x][src_y].color == colorForTurn() 
             && !hasPiece(tar_x, tar_y)
-            && inDiagnol(tar_x, tar_y, src_x, src_y)
-            && !(obs_x == tar_x && obs_y == tar_y)
-            && inDiagnol(obs_x, obs_y, tar_x, tar_y)
-            ;
+            && (inDiagnol(tar_x, tar_y, src_x, src_y)|| tar_x == src_x|| tar_y == src_y)
+            && (inDiagnol(obs_x, obs_y, tar_x, tar_y)|| obs_x == tar_x|| obs_y == tar_y);
     }
 
     public static boolean withinBoard(int x, int y) {
@@ -88,11 +88,28 @@ public class ChessBoard {
         }
     }
 
+    public boolean irremovable(ChessPiece chess) {
+        for(int i=-1;i<=1;i++)
+         for(int j=-1;j<=1;j++) {
+             if(!hasPiece(i,j)) return false;
+         }
+        return true;
+    }
+
     public int declareResult() {
-        // TODO:
-        // -1 means the game continues
-        // 0 means the black wins
-        // 1 means the white wins
+        // 0 stands for black wins
+        // 1 stands for white wins
+        // -1 stands for game continues
+        int counter=0;
+        for(int i=0;i<4;i++) {
+            if(irremovable(this.black[i])) counter++;
+        }
+        if(counter==4) return 0;
+        counter=0;
+        for(int i=0;i<4;i++) {
+            if(irremovable(this.white[i])) counter++;
+        }
+        if(counter==4) return 1;
         return -1;
     }
 
