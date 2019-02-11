@@ -8,22 +8,22 @@ public class ChessBoard {
     int[][] coordBlack = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
     int[][] coordWhite = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
     ChessPiece[] black = new ChessPiece[4];
-    ChessPiece[] white = new ChessPiece[4]; 
+    ChessPiece[] white = new ChessPiece[4];
 
     // Constructor
 
     ChessBoard() {
         turn = 1;
         for (int i = 0; i < 4; i++) {
-            this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], 
-                    coordBlack[1][i], 1,false);
-            this.black[i] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1,false);
+            this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1,
+                    false);
+            this.black[i] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1, false);
         }
 
         for (int i = 0; i < 4; i++) {
-            this.board[coordWhite[0][i]][coordWhite[1][i]] = new ChessPiece(coordWhite[0][i], 
-                    coordWhite[1][i], 0,false);
-            this.white[i]= new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0, false);
+            this.board[coordWhite[0][i]][coordWhite[1][i]] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0,
+                    false);
+            this.white[i] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0, false);
         }
     }
 
@@ -54,29 +54,26 @@ public class ChessBoard {
     }
 
     public int colorForTurn() {
-        return turn%2 == 0 ? 1 : 0;
+        return turn % 2 == 0 ? 1 : 0;
     }
 
     private boolean inDiagnol(int x, int y, int xx, int yy) {
-        return Math.abs(x-xx) == Math.abs(y-yy);
+        return Math.abs(x - xx) == Math.abs(y - yy);
     }
 
     public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
-        //TODO: maybe I forget about certain illegal cases
-        return hasPiece(src_x, src_y) 
-            && board[src_x][src_y].color == colorForTurn() 
-            && !hasPiece(tar_x, tar_y)
-            && (inDiagnol(tar_x, tar_y, src_x, src_y)|| tar_x == src_x|| tar_y == src_y)
-            && (inDiagnol(obs_x, obs_y, tar_x, tar_y)|| obs_x == tar_x|| obs_y == tar_y);
+        // TODO: maybe I forget about certain illegal cases
+        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
+                && (inDiagnol(tar_x, tar_y, src_x, src_y) || tar_x == src_x || tar_y == src_y)
+                && (inDiagnol(obs_x, obs_y, tar_x, tar_y) || obs_x == tar_x || obs_y == tar_y);
     }
 
     public static boolean withinBoard(int x, int y) {
-        return !(x > 7 || y > 7 || x < 0 || y < 0);
+        return x >= 0 && y >= 0 && x <= 7 && y <= 7;
     }
 
     public boolean movePiece(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
-        if (!isLegalMove(src_x, src_y, tar_x, tar_y, obs_x, obs_y)
-            || !withinBoard(obs_x, obs_y)) {
+        if (!isLegalMove(src_x, src_y, tar_x, tar_y, obs_x, obs_y) || !withinBoard(obs_x, obs_y)) {
             return false;
         } else {
             ChessPiece temp = board[src_x][src_y];
@@ -89,38 +86,43 @@ public class ChessBoard {
     }
 
     // public boolean irremovable(ChessPiece chess) {
-    //     for(int i=-1;i<=1;i++)
-    //      for(int j=-1;j<=1;j++) {
-    //          if(!hasPiece(chess.x+i,chess.y+j)||!(i!=)) return false;
-    //      }
-    //     return true;
+    // for(int i=-1;i<=1;i++)
+    // for(int j=-1;j<=1;j++) {
+    // if(!hasPiece(chess.x+i,chess.y+j)||!(i!=)) return false;
+    // }
+    // return true;
     // }
 
     public int declareResult() {
         // 0 stands for black wins
         // 1 stands for white wins
         // -1 stands for game continues
-        int counter=0;
-        for(int i=0;i<4;i++) {
-            if(this.black[i].freedom(this) == 0) counter++;
+        int counter = 0;
+        for (int i = 0; i < 4; i++) {
+            if (this.black[i].freedom(this) == 0)
+                counter++;
         }
-        if(counter==4) return 0;
-        counter=0;
-        for(int i=0;i<4;i++) {
-            if(this.white[i].freedom(this) == 0) counter++;
+        if (counter == 4)
+            return 0;
+        counter = 0;
+        for (int i = 0; i < 4; i++) {
+            if (this.white[i].freedom(this) == 0)
+                counter++;
         }
-        if(counter==4) return 1;
+        if (counter == 4)
+            return 1;
         return -1;
     }
 
     public void printBoard() {
         System.out.print("  ");
-        for(int i=0;i<8;i++) System.out.printf("%d ", i);
+        for (int i = 0; i < 8; i++)
+            System.out.printf("%d ", i);
         System.out.println();
         for (int i = 0; i < 8; i++) {
             for (int j = -1; j < 8; j++) {
-                if(j == -1) {
-                    System.out.printf("%d ",i);
+                if (j == -1) {
+                    System.out.printf("%d ", i);
                     continue;
                 } else if (board[i][j] instanceof ChessPiece) {
                     if (board[i][j].isObstacle)
@@ -138,5 +140,9 @@ public class ChessBoard {
             System.out.println();
         }
         System.out.println();
+    }
+
+    public ChessPiece getPiece(int x, int y) {
+        return board[x][y];
     }
 }

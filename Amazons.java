@@ -9,17 +9,18 @@ import java.io.IOException;
 
 public class Amazons {
 
-    public static void clrscr(){
-        //Clears Screen in java
+    public static void clrscr() {
+        // Clears Screen in java
         try {
             if (System.getProperty("os.name").contains("Windows"))
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             else
                 Runtime.getRuntime().exec("clear");
         } catch (IOException | InterruptedException ex) {
-            
+
         }
     }
+
     public static void main(String args[]) {
         // AmazonsGUI gui = new AmazonsGUI();
         // TODO: implement the proof-of-concept CLI interface
@@ -30,7 +31,7 @@ public class Amazons {
         System.out.println("0 2 3 3 3 4 means \nmove the chess on (0,2) to (3,3) \nand place an obstacle on (3,4)\n");
         do {
             ok = true;
-            clrscr();   // I dunno why this doesn' work...
+            // clrscr(); // I dunno why this doesn' work...
             System.out.printf("It is turn for %s.\n", cb.colorForTurn() == 0 ? "+" : "-");
             int x = sc.nextInt();
             int y = sc.nextInt();
@@ -38,7 +39,15 @@ public class Amazons {
             int yy = sc.nextInt();
             int xxx = sc.nextInt();
             int yyy = sc.nextInt();
-            if(!cb.movePiece(x, y, xx, yy, xxx, yyy)) {
+            // if(cb.isLegalMove(x, y, xx, yy, xxx, yyy)) {
+            // List<Pairs> possible = cb.getPiece(x, y).possiblePositions(cb);
+            // System.out.println("Possible positions:");
+            // }
+            for (Pairs p : possible) {
+                System.out.printf("(%d, %d) ", p.x, p.y);
+            }
+            System.out.println();
+            if (!cb.movePiece(x, y, xx, yy, xxx, yyy)) {
                 System.out.println("Illegal input. Please try again.");
                 ok = false;
                 continue;
