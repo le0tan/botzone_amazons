@@ -1,13 +1,13 @@
-public class Pairs {
+public class Pair {
     int x;
     int y;
 
-    Pairs(int x, int y) {
+    Pair(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    Pairs() {
+    Pair() {
         this.x = 0;
         this.y = 0;
     }

@@ -39,18 +39,18 @@ public class ChessPiece {
 
     // Methods
 
-    public List<Pairs> possiblePositions(ChessBoard board) {
+    public List<Pair> possiblePositions(ChessBoard board) {
         // @param boolean putObstacle specifies the property of the output ChessPiece -
         // whether they're obstacles or not
-        List<Pairs> positions = new ArrayList<Pairs>();
-        Pairs position = new Pairs();
+        List<Pair> positions = new ArrayList<Pair>();
+        Pair position = new Pair();
         for (int i = -1; i <= 1; i++)
             for (int j = -1; j <= 1; j++)
                 if (i != 0 || j != 0) {
                     position.x = this.x + i;
                     position.y = this.y + j;
                     while (ChessBoard.withinBoard(position.x, position.y) && !board.hasPiece(position.x, position.y)) {
-                        positions.add(new Pairs(position.x, position.y));
+                        positions.add(new Pair(position.x, position.y));
                         position.x = position.x + i;
                         position.y = position.y + j;
                         // System.out.printf("%d %d\n", position.x, position.y);

@@ -63,7 +63,9 @@ public class ChessBoard {
 
     public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
         // TODO: maybe I forget about certain illegal cases
-        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
+        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn()
+                && !hasPiece(tar_x, tar_y)
+                && (!hasPiece(obs_x,obs_y)||obs_x==src_x&&obs_y==src_y)
                 && (inDiagnol(tar_x, tar_y, src_x, src_y) || tar_x == src_x || tar_y == src_y)
                 && (inDiagnol(obs_x, obs_y, tar_x, tar_y) || obs_x == tar_x || obs_y == tar_y);
     }
@@ -77,8 +79,25 @@ public class ChessBoard {
             return false;
         } else {
             ChessPiece temp = board[src_x][src_y];
-            removePiece(src_x, src_y);
             board[tar_x][tar_y] = temp;
+            temp.x=tar_x;
+            temp.y=tar_y;
+            if(colorForTurn()==1) {
+                for(int i=0;i<4;i++) {
+                    if(black[i]==board[src_x][src_y]) {
+                        black[i]=temp;
+                        break;
+                    }
+                }
+            } else {
+                for(int i=0;i<4;i++) {
+                    if(white[i]==board[src_x][src_y]) {
+                        white[i]=temp;
+                        break;
+                    }
+                }
+            }
+            removePiece(src_x, src_y);
             board[obs_x][obs_y] = new ChessPiece(obs_x, obs_y, 2, true);
             turn++;
             return true;
