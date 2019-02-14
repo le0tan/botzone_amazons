@@ -21,34 +21,6 @@ public class Amazons {
         }
     }
 
-    // public static void readStep(int x,int y,int xx,int yy,int xxx,int yyy) {
-    // Scanner sc = new Scanner(System.in);
-    // do {
-    // try {
-    // x = sc.nextInt();
-    // y = sc.nextInt();
-    // xx = sc.nextInt();
-    // yy = sc.nextInt();
-    // xxx = sc.nextInt();
-    // yyy = sc.nextInt();
-    // // if(cb.isLegalMove(x, y, xx, yy, xxx, yyy)) {
-    // // List<Pair> possible = cb.getPiece(x, y).possiblePositions(cb);
-    // // System.out.println("Possible positions:");
-    // // }
-    // // for (Pair p : possible) {
-    // // System.out.printf("(%d, %d) ", p.x, p.y);
-    // // }
-    // } catch (InputMismatchException e) {
-    // sc.next();
-    // System.out.println("Illegal input. Please try again.");
-    // continue;
-    // }
-    // sc.close();
-    // break;
-    // }while(0==0);
-
-    // }
-
     public static boolean checkResult(ChessBoard cb) {
         int checkResult = cb.declareResult();
         if (checkResult == 2) {
@@ -64,38 +36,6 @@ public class Amazons {
             return true;
         }
         return false;
-    }
-
-    public static boolean moveStep(int x, int y, int xx, int yy, int xxx, int yyy, ChessBoard cb) {
-        Scanner sca = new Scanner(System.in);
-        do {
-            try {
-                x = sca.nextInt();
-                y = sca.nextInt();
-                xx = sca.nextInt();
-                yy = sca.nextInt();
-                xxx = sca.nextInt();
-                yyy = sca.nextInt();
-                // if(cb.isLegalMove(x, y, xx, yy, xxx, yyy)) {
-                // List<Pair> possible = cb.getPiece(x, y).possiblePositions(cb);
-                // System.out.println("Possible positions:");
-                // }
-                // for (Pair p : possible) {
-                // System.out.printf("(%d, %d) ", p.x, p.y);
-                // }
-            } catch (InputMismatchException e) {
-                sca.next();
-                System.out.println("Illegal input. Please try again.");
-                continue;
-            }
-            // sca.close();
-            break;
-        } while (true);
-        if (!cb.movePiece(x, y, xx, yy, xxx, yyy)) {
-            System.out.println("Illegal input. Please try again.");
-            return false;
-        }
-        return true;
     }
 
     public static void main(String args[]) {
@@ -152,10 +92,10 @@ public class Amazons {
                 do {
                     if (cb.colorForTurn() == 0) {
                         System.out.println("It is turn for the black.");
-                        cb = aib.randomAi(cb);
+                        cb = aib.randomAI(cb);
                     } else if (cb.colorForTurn() == 1) {
                         System.out.println("It is turn for the white.");
-                        cb = aiw.randomAi(cb);
+                        cb = aiw.randomAI(cb);
                     }
                     cb.printBoard();
                     boolean checkres = checkResult(cb);
@@ -184,7 +124,7 @@ public class Amazons {
                     continue;
                 }
                 RandomAI ai = new RandomAI();
-                // TODO:implement calculating AI
+                // TODO: Implement calculating AI
                 // if(difficulty==1) {
                 // RandomAI ai=new RandomAI();
                 // } else if(difficulty==2) {
@@ -212,13 +152,12 @@ public class Amazons {
                     do {
                         if (cb.colorForTurn() == 0) {
                             System.out.println("It is your turn.");
-                            int x = 0, y = 0, xx = 0, yy = 0, xxx = 0, yyy = 0;
-                            ok = moveStep(x, y, xx, yy, xxx, yyy, cb);
+                            ok = cb.moveStepFromInput();
                             if (!ok)
                                 continue;
                         } else if (cb.colorForTurn() == 1) {
                             System.out.println("It is turn for the computer.");
-                            cb = ai.randomAi(cb);
+                            cb = ai.randomAI(cb);
                         }
                         cb.printBoard();
                         boolean checkres = checkResult(cb);
@@ -229,11 +168,10 @@ public class Amazons {
                     do {
                         if (cb.colorForTurn() == 0) {
                             System.out.println("It is turn for the computer.");
-                            cb = ai.randomAi(cb);
+                            cb = ai.randomAI(cb);
                         } else if (cb.colorForTurn() == 1) {
                             System.out.println("It is your turn.");
-                            int x = 0, y = 0, xx = 0, yy = 0, xxx = 0, yyy = 0;
-                            ok = moveStep(x, y, xx, yy, xxx, yyy, cb);
+                            ok = cb.moveStepFromInput();
                             if (!ok)
                                 continue;
                         }
@@ -252,48 +190,13 @@ public class Amazons {
                         "0 2 3 3 3 4 means \nmove the chess on (0,2) to (3,3) \nand place an obstacle on (3,4)\n");
                 System.out.printf("It is turn for %s.\n", cb.colorForTurn() == 0 ? "+" : "-");
                 do {
-                    int x = 0, y = 0, xx = 0, yy = 0, xxx = 0, yyy = 0;
-                    ok = moveStep(x, y, xx, yy, xxx, yyy, cb);
+                    ok = cb.moveStepFromInput();
                     if (!ok)
                         continue;
-                    // try {
-                    // // clrscr(); // I dunno why this doesn' work...
-                    // x = sc.nextInt();
-                    // y = sc.nextInt();
-                    // xx = sc.nextInt();
-                    // yy = sc.nextInt();
-                    // xxx = sc.nextInt();
-                    // yyy = sc.nextInt();
-                    // // if(cb.isLegalMove(x, y, xx, yy, xxx, yyy)) {
-                    // // List<Pair> possible = cb.getPiece(x, y).possiblePositions(cb);
-                    // // System.out.println("Possible positions:");
-                    // // }
-                    // // for (Pair p : possible) {
-                    // // System.out.printf("(%d, %d) ", p.x, p.y);
-                    // // }
-                    // } catch (InputMismatchException e) {
-                    // sc.next();
-                    // System.out.println("Illegal input. Please try again.");
-                    // continue;
-                    // }
-                    // if (!cb.movePiece(x, y, xx, yy, xxx, yyy)) {
-                    // System.out.println("Illegal input. Please try again.");
-                    // ok = false;
-                    // continue;
-                    // }
                     cb.printBoard();
                     boolean checkres = checkResult(cb);
                     if (checkres)
                         break;
-                    // int checkResult = cb.declareResult();
-                    // if (checkResult == 1) {
-                    // System.out.println("Game over, the white wins.");
-                    // break;
-                    // }
-                    // if (checkResult == 0) {
-                    // System.out.println("Game over, the black wins.");
-                    // break;
-                    // }
                     System.out.printf("It is turn for %s.\n", cb.colorForTurn() == 0 ? "+" : "-");
                 } while (true);
             }

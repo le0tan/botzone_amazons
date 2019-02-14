@@ -1,3 +1,6 @@
+import java.util.Scanner;
+import java.util.InputMismatchException;;
+
 /**
  * ChessBoard
  */
@@ -29,12 +32,18 @@ public class ChessBoard {
 
     // Methods
 
+    /** Methods on moving chess pieces around **/
+
     public boolean hasPiece(int x, int y) {
         if (!withinBoard(x, y)) {
             return false;
         } else {
             return board[x][y] instanceof ChessPiece;
         }
+    }
+
+    public ChessPiece getPiece(int x, int y) {
+        return board[x][y];
     }
 
     // Returns true if the chesspiece is put successfully.
@@ -53,63 +62,70 @@ public class ChessBoard {
             board[x][y] = null;
     }
 
-    public int colorForTurn() {
-        return turn % 2 == 0 ? 1 : 0;
-    }
-
-    private boolean inDiagnol(int x, int y, int xx, int yy) {
-        return Math.abs(x - xx) == Math.abs(y - yy);
-    }
-
-    public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
-        // TODO: maybe I forget about certain illegal cases
-        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
-                && (!hasPiece(obs_x, obs_y) || obs_x == src_x && obs_y == src_y)
-                && (inDiagnol(tar_x, tar_y, src_x, src_y) || tar_x == src_x || tar_y == src_y)
-                && (inDiagnol(obs_x, obs_y, tar_x, tar_y) || obs_x == tar_x || obs_y == tar_y);
-    }
-
-    public static boolean withinBoard(int x, int y) {
-        return x >= 0 && y >= 0 && x <= 7 && y <= 7;
-    }
-
-    public boolean movePiece(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
-        if (!isLegalMove(src_x, src_y, tar_x, tar_y, obs_x, obs_y) || !withinBoard(obs_x, obs_y)) {
+    public boolean movePiece(Move move) {
+        if (!isLegalMove(move.src_x, move.src_y, move.tar_x, move.tar_y, move.obs_x, move.obs_y) || !withinBoard(move.obs_x, move.obs_y)) {
             return false;
         } else {
-            ChessPiece temp = board[src_x][src_y];
-            board[tar_x][tar_y] = temp;
-            temp.x = tar_x;
-            temp.y = tar_y;
+            ChessPiece temp = board[move.src_x][move.src_y];
+            board[move.tar_x][move.tar_y] = temp;
+            temp.x = move.tar_x;
+            temp.y = move.tar_y;
             if (colorForTurn() == 1) {
                 for (int i = 0; i < 4; i++) {
-                    if (black[i] == board[src_x][src_y]) {
+                    if (black[i] == board[move.src_x][move.src_y]) {
                         black[i] = temp;
                         break;
                     }
                 }
             } else {
                 for (int i = 0; i < 4; i++) {
-                    if (white[i] == board[src_x][src_y]) {
+                    if (white[i] == board[move.src_x][move.src_y]) {
                         white[i] = temp;
                         break;
                     }
                 }
             }
-            removePiece(src_x, src_y);
-            board[obs_x][obs_y] = new ChessPiece(obs_x, obs_y, 2, true);
+            removePiece(move.src_x, move.src_y);
+            board[move.obs_x][move.obs_y] = new ChessPiece(move.obs_x, move.obs_y, 2, true);
             turn++;
             return true;
         }
     }
 
-    // public boolean irremovable(ChessPiece chess) {
-    // for(int i=-1;i<=1;i++)
-    // for(int j=-1;j<=1;j++) {
-    // if(!hasPiece(chess.x+i,chess.y+j)||!(i!=)) return false;
-    // }
-    // return true;
-    // }
+    /** End of methods on moving chess pieces around **/
+
+    /** Auxiliary methods **/
+
+    public int colorForTurn() {
+        return turn % 2 == 0 ? 1 : 0;
+    }
+
+    private boolean inQueenPosition(int x, int y, int xx, int yy) {
+        return Math.abs(x - xx) == Math.abs(y - yy) || x == xx || y == yy;
+    }
+
+    public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
+        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
+                && (!hasPiece(obs_x, obs_y) || obs_x == src_x && obs_y == src_y)
+                && inQueenPosition(tar_x, tar_y, src_x, src_y)
+                && inQueenPosition(obs_x, obs_y, tar_x, tar_y);
+    }
+
+    public static boolean withinBoard(int x, int y) {
+        return x >= 0 && y >= 0 && x <= 7 && y <= 7;
+    }
+
+    /** End of auxiliary methods **/
+
+    /** Methods for actual games **/
+
+    public boolean moveStep(Move move) {
+        if (!this.movePiece(move)) {
+            System.out.println("Illegal input. Please try again.");
+            return false;
+        }
+        return true;
+    }
 
     public int declareResult() {
         // 0 stands for black wins
@@ -133,6 +149,10 @@ public class ChessBoard {
             return 0;
         return -1;
     }
+
+    /** End of methods for actual games **/
+
+    /** CLI specific methods **/
 
     public void printBoard() {
         System.out.print("  ");
@@ -162,7 +182,23 @@ public class ChessBoard {
         System.out.println();
     }
 
-    public ChessPiece getPiece(int x, int y) {
-        return board[x][y];
+    public boolean moveStepFromInput() {
+        // This is bad. Try to consolidate to one single Scanner for a single file
+        Scanner sca = new Scanner(System.in);
+        Move move = null;
+        do {
+            try {
+                move = new Move(sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt());
+            } catch (InputMismatchException e) {
+                sca.next();
+                System.out.println("Illegal input. Please try again.");
+                continue;
+            }
+            // sca.close();
+            break;
+        } while (true);
+        return this.moveStep(move);
     }
+
+    /** End of CLI specific methods **/
 }

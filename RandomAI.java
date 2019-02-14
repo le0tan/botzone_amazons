@@ -10,7 +10,7 @@ public class RandomAI {
     // ChessPiece[] chesses= new ChessPiece[4];
     // ChessBoard board= new ChessBoard();
 
-    public ChessBoard randomAi(ChessBoard board) {
+    public ChessBoard randomAI(ChessBoard board) {
         ChessPiece[] chesses = new ChessPiece[4];
         if (board.colorForTurn() == 0)
             chesses = board.black;
