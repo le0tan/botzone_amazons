@@ -5,8 +5,6 @@ public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
     int turn;
-    int[][] coordBlack = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
-    int[][] coordWhite = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
     ChessPiece[] black = new ChessPiece[4];
     ChessPiece[] white = new ChessPiece[4];
 
@@ -14,16 +12,18 @@ public class ChessBoard {
 
     ChessBoard() {
         turn = 1;
+        int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
+        int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
         for (int i = 0; i < 4; i++) {
-            this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1,
+            this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 0,
                     false);
-            this.black[i] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 1, false);
+            this.black[i] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 0, false);
         }
 
         for (int i = 0; i < 4; i++) {
-            this.board[coordWhite[0][i]][coordWhite[1][i]] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0,
+            this.board[coordWhite[0][i]][coordWhite[1][i]] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 1,
                     false);
-            this.white[i] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 0, false);
+            this.white[i] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 1, false);
         }
     }
 
@@ -48,7 +48,7 @@ public class ChessBoard {
         }
     }
 
-    private void removePiece(int x, int y) {
+    public void removePiece(int x, int y) {
         if (hasPiece(x, y))
             board[x][y] = null;
     }
@@ -63,9 +63,8 @@ public class ChessBoard {
 
     public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
         // TODO: maybe I forget about certain illegal cases
-        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn()
-                && !hasPiece(tar_x, tar_y)
-                && (!hasPiece(obs_x,obs_y)||obs_x==src_x&&obs_y==src_y)
+        return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
+                && (!hasPiece(obs_x, obs_y) || obs_x == src_x && obs_y == src_y)
                 && (inDiagnol(tar_x, tar_y, src_x, src_y) || tar_x == src_x || tar_y == src_y)
                 && (inDiagnol(obs_x, obs_y, tar_x, tar_y) || obs_x == tar_x || obs_y == tar_y);
     }
@@ -80,19 +79,19 @@ public class ChessBoard {
         } else {
             ChessPiece temp = board[src_x][src_y];
             board[tar_x][tar_y] = temp;
-            temp.x=tar_x;
-            temp.y=tar_y;
-            if(colorForTurn()==1) {
-                for(int i=0;i<4;i++) {
-                    if(black[i]==board[src_x][src_y]) {
-                        black[i]=temp;
+            temp.x = tar_x;
+            temp.y = tar_y;
+            if (colorForTurn() == 1) {
+                for (int i = 0; i < 4; i++) {
+                    if (black[i] == board[src_x][src_y]) {
+                        black[i] = temp;
                         break;
                     }
                 }
             } else {
-                for(int i=0;i<4;i++) {
-                    if(white[i]==board[src_x][src_y]) {
-                        white[i]=temp;
+                for (int i = 0; i < 4; i++) {
+                    if (white[i] == board[src_x][src_y]) {
+                        white[i] = temp;
                         break;
                     }
                 }
@@ -116,20 +115,22 @@ public class ChessBoard {
         // 0 stands for black wins
         // 1 stands for white wins
         // -1 stands for game continues
-        int counter = 0;
+        int counterb = 0;
         for (int i = 0; i < 4; i++) {
             if (this.black[i].freedom(this) == 0)
-                counter++;
+                counterb++;
         }
-        if (counter == 4)
-            return 0;
-        counter = 0;
+        int counterw = 0;
         for (int i = 0; i < 4; i++) {
             if (this.white[i].freedom(this) == 0)
-                counter++;
+                counterw++;
         }
-        if (counter == 4)
+        if (counterb == 4 && counterw == 4)
+            return 2;
+        if (counterb == 4)
             return 1;
+        if (counterw == 4)
+            return 0;
         return -1;
     }
 
