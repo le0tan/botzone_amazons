@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 // import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,16 +23,43 @@ public class SwingBoard extends JFrame {
     public static final int NUMBER_OF_ROWS = 8;
     public static final int NUMBER_OF_FILES = 8;
     public static JLabel square;
-    public static JPanel squarePanel = new JPanel();
-    public static JPanel squaresPanel = new JPanel();
+    public static JPanel squarePanel = new JPanel();    // This is just a pointer variable that is used temporarily
+    public static JPanel squaresPanel = new JPanel();   // This is where the squares are stored
+    public static Color darkSquareColor = new Color(178, 151, 89);
+    public static Color lightSquareColor = new Color(255, 255, 255);
 
     private static void createSquares() {
         LayoutManager layout = new GridLayout(NUMBER_OF_ROWS, NUMBER_OF_FILES);
         squaresPanel.setLayout(layout);
-        for (int i = NUMBER_OF_ROWS; i > 0; i--) {
-            for (int j = 1; j <= NUMBER_OF_FILES; j++) {
+        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+            for (int j = 0; j < NUMBER_OF_FILES; j++) {
                 squarePanel = new JPanel();
-                square = new JLabel("r" + i + ":c" + j);
+                square = new JLabel();
+                final int a = i; final int b = j;
+                squarePanel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent me) {
+                        JPanel l = (JPanel) me.getSource();
+                        l.setBackground(new Color(233,233,233));
+                        System.out.printf("Mouse over tile (%d, %d)\n", a, b);
+                    }
+                    @Override
+                    public void mouseExited(MouseEvent me) {
+                        JPanel l = (JPanel) me.getSource();
+                        l.setBackground(getColor(a, b));
+                        // System.out.printf("Mouse over tile (%d, %d)\n", a, b);
+                    }
+                    @Override
+                    public void mousePressed(MouseEvent me) {
+                        JPanel l = (JPanel) me.getSource();
+                        l.setBackground(new Color(0,0,255));
+                    }
+                    @Override
+                    public void mouseReleased(MouseEvent me) {
+                        JPanel l = (JPanel) me.getSource();
+                        l.setBackground(getColor(a, b));
+                    }
+                });
                 squarePanel.add(square);
                 squarePanel.setBackground(getColor(i, j));
                 square.setForeground(new Color(0, 0, 250));
@@ -41,9 +71,9 @@ public class SwingBoard extends JFrame {
 
     private static Color getColor(int x, int y) {
         if ((x + y) % 2 == 0)
-            return new Color(255, 255, 255);
+            return darkSquareColor;
         else
-            return new Color(0, 0, 0);
+            return lightSquareColor;
     }
 
     public SwingBoard() {
