@@ -1,16 +1,26 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
 // import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
+import javax.swing.border.LineBorder;
 
 /**
  * A simple chess board using Swing
@@ -27,44 +37,23 @@ public class SwingBoard extends JFrame {
     public static JPanel squaresPanel = new JPanel();   // This is where the squares are stored
     public static Color darkSquareColor = new Color(178, 151, 89);
     public static Color lightSquareColor = new Color(255, 255, 255);
+    private static Dimension preferredSize = new Dimension();
 
-    private static void createSquares() {
-        LayoutManager layout = new GridLayout(NUMBER_OF_ROWS, NUMBER_OF_FILES);
-        squaresPanel.setLayout(layout);
-        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
-            for (int j = 0; j < NUMBER_OF_FILES; j++) {
-                squarePanel = new JPanel();
-                square = new JLabel();
-                final int a = i; final int b = j;
-                squarePanel.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseEntered(MouseEvent me) {
-                        JPanel l = (JPanel) me.getSource();
-                        l.setBackground(new Color(233,233,233));
-                        System.out.printf("Mouse over tile (%d, %d)\n", a, b);
-                    }
-                    @Override
-                    public void mouseExited(MouseEvent me) {
-                        JPanel l = (JPanel) me.getSource();
-                        l.setBackground(getColor(a, b));
-                        // System.out.printf("Mouse over tile (%d, %d)\n", a, b);
-                    }
-                    @Override
-                    public void mousePressed(MouseEvent me) {
-                        JPanel l = (JPanel) me.getSource();
-                        l.setBackground(new Color(0,0,255));
-                    }
-                    @Override
-                    public void mouseReleased(MouseEvent me) {
-                        JPanel l = (JPanel) me.getSource();
-                        l.setBackground(getColor(a, b));
-                    }
-                });
-                squarePanel.add(square);
-                squarePanel.setBackground(getColor(i, j));
-                square.setForeground(new Color(0, 0, 250));
-                squarePanel.setToolTipText("Row " + i + " and Column " + j);
-                squaresPanel.add(squarePanel);
+    private void createSquares() {
+        final JPanel board = new JPanel();
+        getContentPane().add(board);
+        board.setLayout(new GridLayout(8, 8));
+
+        final JPanel glass = (JPanel) getGlassPane();
+        glass.setVisible(false);
+        glass.setLayout(new GridLayout(8, 8));
+        int count = 0;
+        for(int i=0;i<8;i++) {
+            for(int j=0;j<8;j++) {
+                JPanel jp = new JPanel();
+                jp.setBackground(new Color(count*4,count*4,count*4));
+                count++;
+                glass.add(jp);
             }
         }
     }
@@ -91,16 +80,16 @@ public class SwingBoard extends JFrame {
         } else {
             boardSize = width / 2;
         }
-        createSquares();
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Swing Chess Board");
         // setIconImage(new ImageIcon("board.jpg").getImage());
         getContentPane().add(squaresPanel, BorderLayout.CENTER);
         setVisible(true);
-        Dimension preferredSize = new Dimension();
         preferredSize.width = boardSize;
         preferredSize.height = boardSize;
+        // System.out.printf("height=%d\n",preferredSize.height);
         setPreferredSize(preferredSize);
+        createSquares();
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
         pack();
     }

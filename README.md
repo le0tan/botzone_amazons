@@ -30,3 +30,9 @@ while(cond) {
     // add those extended states to q
 }
 ```
+
+## To-dos for Feburary 16
+
+- Implement the first version of DrawChessPiece (in AmazonsGUI.java, the private class inside the public class). (Refer to Graphics2D for more information)
+- Implement click to place chess piece; black pieces and white pieces should appear by turns
+- Implement displayFreedom() method
