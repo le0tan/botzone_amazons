@@ -39,7 +39,8 @@ public class Amazons {
     }
 
     public static void main(String args[]) {
-        // AmazonsGUI gui = new AmazonsGUI();
+        AmazonsGUI gui = new AmazonsGUI();
+        //gui.
         ChessBoard cb = new ChessBoard();
         Scanner sc = new Scanner(System.in);
         boolean ok = false;

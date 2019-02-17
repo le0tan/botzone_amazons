@@ -7,16 +7,20 @@ import java.util.InputMismatchException;;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
+    boolean[][] pressed=new boolean[8][8];
     int turn;
     ChessPiece[] black = new ChessPiece[4];
     ChessPiece[] white = new ChessPiece[4];
+    int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
+    int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
 
     // Constructor
 
     ChessBoard() {
         turn = 1;
-        int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
-        int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
+        for(int i=0;i<8;i++)
+         for(int j=0;j<8;j++)
+          pressed[i][j]=false;
         for (int i = 0; i < 4; i++) {
             this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 0,
                     false);
@@ -201,4 +205,9 @@ public class ChessBoard {
     }
 
     /** End of CLI specific methods **/
+
+    /** GUI related methods **/
+    
+
+    /** End of GUI related methods **/
 }
