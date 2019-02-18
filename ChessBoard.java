@@ -7,20 +7,24 @@ import java.util.InputMismatchException;;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
-    boolean[][] pressed=new boolean[8][8];
     int turn;
     ChessPiece[] black = new ChessPiece[4];
     ChessPiece[] white = new ChessPiece[4];
     int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
     int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
 
+    boolean[][] pressed = new boolean[8][8];
+    ChessPiece chessToMove = null;
+    boolean chessmoved;
+    ChessPiece movedChess = null;
+
     // Constructor
 
     ChessBoard() {
         turn = 1;
-        for(int i=0;i<8;i++)
-         for(int j=0;j<8;j++)
-          pressed[i][j]=false;
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                pressed[i][j] = false;
         for (int i = 0; i < 4; i++) {
             this.board[coordBlack[0][i]][coordBlack[1][i]] = new ChessPiece(coordBlack[0][i], coordBlack[1][i], 0,
                     false);
@@ -67,7 +71,8 @@ public class ChessBoard {
     }
 
     public boolean movePiece(Move move) {
-        if (!isLegalMove(move.src_x, move.src_y, move.tar_x, move.tar_y, move.obs_x, move.obs_y) || !withinBoard(move.obs_x, move.obs_y)) {
+        if (!isLegalMove(move.src_x, move.src_y, move.tar_x, move.tar_y, move.obs_x, move.obs_y)
+                || !withinBoard(move.obs_x, move.obs_y)) {
             return false;
         } else {
             ChessPiece temp = board[move.src_x][move.src_y];
@@ -111,8 +116,7 @@ public class ChessBoard {
     public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
         return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
                 && (!hasPiece(obs_x, obs_y) || obs_x == src_x && obs_y == src_y)
-                && inQueenPosition(tar_x, tar_y, src_x, src_y)
-                && inQueenPosition(obs_x, obs_y, tar_x, tar_y);
+                && inQueenPosition(tar_x, tar_y, src_x, src_y) && inQueenPosition(obs_x, obs_y, tar_x, tar_y);
     }
 
     public static boolean withinBoard(int x, int y) {
@@ -192,7 +196,8 @@ public class ChessBoard {
         Move move = null;
         do {
             try {
-                move = new Move(sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt());
+                move = new Move(sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt(), sca.nextInt(),
+                        sca.nextInt());
             } catch (InputMismatchException e) {
                 sca.next();
                 System.out.println("Illegal input. Please try again.");
@@ -207,7 +212,67 @@ public class ChessBoard {
     /** End of CLI specific methods **/
 
     /** GUI related methods **/
-    
+
+    public void setChessToMove() {
+        if (colorForTurn() == 0) {
+            for (int i = 0; i < 4; i++) {
+                if (this.pressed[black[i].x][black[i].y]) {
+                    chessToMove = black[i];
+                }
+            }
+        } else {
+            for (int i = 0; i < 4; i++) {
+                if (this.pressed[white[i].x][white[i].y]) {
+                    chessToMove = white[i];
+                }
+            }
+        }
+    }
+
+    public boolean choosingTarget() {
+        if (chessToMove != null)
+            return true;
+        else
+            return false;
+    }
+
+    public boolean choosingObstacle() {
+        if (movedChess != null)
+            return true;
+        else
+            return false;
+    }
+
+    public void moveChess(int tar_x, int tar_y) {
+        movedChess = new ChessPiece(tar_x, tar_y, chessToMove.color, false);
+        board[tar_x][tar_y] = movedChess;
+        pressed[tar_x][tar_y] = true;
+        if (colorForTurn() == 0) {
+            for (int i = 0; i < 4; i++) {
+                if (black[i] == chessToMove) {
+                    black[i] = movedChess;
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < 4; i++) {
+                if (white[i] == chessToMove) {
+                    white[i] = movedChess;
+                    break;
+                }
+            }
+        }
+        removePiece(chessToMove.x, chessToMove.y);
+        pressed[chessToMove.x][chessToMove.y] = false;
+        chessToMove = null;
+    }
+
+    public void putObstacle(int x, int y) {
+        pressed[movedChess.x][movedChess.y] = false;
+        board[x][y] = new ChessPiece(x, y, 2, true);
+        movedChess = null;
+        turn++;
+    }
 
     /** End of GUI related methods **/
 }

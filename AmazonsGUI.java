@@ -49,7 +49,41 @@ public class AmazonsGUI extends JFrame {
         @Override
         public void mouseExited(MouseEvent me) {
             JPanel temp = (JPanel) me.getSource();
-            temp.setBackground(new Color(200, 200, 200));
+            Pair p = new Pair();
+            boolean ct = cb.choosingTarget();
+            boolean co = cb.choosingObstacle();
+            boolean legal = false;
+            if (ct || co) {
+                for (int i = 0; i < 64; i++) {
+                    if (temp.equals(squaresPanel.getComponent(i))) {
+                        p.x = i / 8;
+                        p.y = i % 8;
+                        break;
+                    }
+                }
+            }
+            if (ct) {
+                for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
+                    if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
+                            && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
+                        legal = true;
+                        break;
+                    }
+                }
+            }
+            if (co) {
+                for (int i = 0; i < cb.movedChess.freedom(cb); i++) {
+                    if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
+                            && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
+                        legal = true;
+                        break;
+                    }
+                }
+            }
+            if (legal)
+                temp.setBackground(new Color(100, 100, 100));
+            else
+                temp.setBackground(new Color(200, 200, 200));
         }
 
         @Override
@@ -64,9 +98,48 @@ public class AmazonsGUI extends JFrame {
                     break;
                 }
             }
-            cb.pressed[x][y] = !(cb.pressed[x][y]);
-            if (cb.hasPiece(x, y)&&(cb.board[x][y].color==1||cb.board[x][y].color==0)) {
+            Pair p = new Pair(x, y);
+            boolean ct = cb.choosingTarget();
+            boolean co = cb.choosingObstacle();
+            boolean legal = false;
+            if (ct) {
+                for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
+                    if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
+                            && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
+                        legal = true;
+                        break;
+                    }
+                }
+            }
+            if (co) {
+                for (int i = 0; i < cb.movedChess.freedom(cb); i++) {
+                    if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
+                            && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
+                        legal = true;
+                        break;
+                    }
+                }
+            }
+
+            if (ct && legal) {
+                for (int i = 0; i < 64; i++) {
+                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                }
+                placePiece(x, y, cb.chessToMove.color);
+                removePiece(cb.chessToMove.x, cb.chessToMove.y);
+                cb.moveChess(x, y);
                 displayFreedom(x, y);
+            } else if (co && legal) {
+                for (int i = 0; i < 64; i++) {
+                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                }
+                placePiece(x, y, 2);
+                cb.putObstacle(x, y);
+            } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
+                cb.pressed[x][y] = !(cb.pressed[x][y]);
+                displayFreedom(x, y);
+                cb.setChessToMove();
+            } else if (!cb.hasPiece(x, y)) {
             }
         }
         // @Override
