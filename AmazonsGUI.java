@@ -11,13 +11,19 @@ import java.awt.Shape;
 import java.awt.Stroke;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.StrokeBorder;
 
 import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
@@ -32,7 +38,7 @@ public class AmazonsGUI extends JFrame {
 
     private static JPanel squaresPanel = new JPanel();
     // private static JPanel glass=new JPanel();
-    JPanel glass = (JPanel) getGlassPane();
+    private JPanel glass = (JPanel) getGlassPane();
     private static Dimension preferredSize = new Dimension();
     private static int NUM_OF_ROWS = 8;
     private static int NUM_OF_COLS = 8;
@@ -106,10 +112,13 @@ public class AmazonsGUI extends JFrame {
         // temp.setBackground(new Color(200,200,200));
         // }
     };
+    private static JLabel resultLabel;
 
     public static void main(String[] args) {
         AmazonsGUI ag = new AmazonsGUI();
         ag.initComponents();
+        // resultWindow.createWindow("I won!");
+        ag.new controlPanel().createWindow();
     }
 
     private void initComponents() {
@@ -123,11 +132,11 @@ public class AmazonsGUI extends JFrame {
         } else {
             boardSize = width / 2;
         }
-
+        
         // init window
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Swing Chess Board");
-
+        setTitle("Amazons");
+        
         getContentPane().add(squaresPanel, BorderLayout.CENTER);
         setVisible(true);
         preferredSize.width = boardSize;
@@ -146,6 +155,28 @@ public class AmazonsGUI extends JFrame {
         // I don't understand
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
         pack();
+        // centreWindow(this);
+    }
+
+    public static void centreWindow(Window frame) {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
+    }
+
+    private void resetBoard() {
+        System.out.println("Initiated board reset!!");
+        cb = new ChessBoard();
+        for(int i=0;i<NUM_OF_ROWS;i++) {
+            for(int j=0;j<NUM_OF_COLS;j++) {
+                removePiece(i, j);
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
+            placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
+        }
     }
 
     private void createSquares() {
@@ -187,6 +218,7 @@ public class AmazonsGUI extends JFrame {
         glass.remove(x * 8 + y);
         glass.add(new DrawChessPiece(c), x * 8 + y);
         glass.revalidate();
+        glass.repaint();
     }
 
     private void removePiece(int x, int y) {
@@ -194,6 +226,8 @@ public class AmazonsGUI extends JFrame {
         glasses.setVisible(false);
         glass.remove(x * 8 + y);
         glass.add(glasses, x * 8 + y);
+        glass.revalidate();
+        glass.repaint();
     }
 
     private class DrawChessPiece extends JComponent {
@@ -286,5 +320,56 @@ public class AmazonsGUI extends JFrame {
                 cb.setChessToMove();
             } else if (!cb.hasPiece(x, y)) {
             }
+            int result = cb.declareResult();
+            if(result != -1) {
+                resultWindow.createWindow(Integer.toString(result));
+            }
+    }
+    private class controlPanel extends JFrame implements ActionListener{
+        public void createWindow() {
+            controlPanel w = new controlPanel();
+            w.init();
+        }
+        private void init() {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            setTitle("Command Center");
+            setVisible(true);
+            setPreferredSize(new Dimension(400,70));
+            
+            JButton button = new JButton("Reset Game");
+            // button.setSize(new Dimension(100, 70));
+            button.setActionCommand("RESET");
+            button.addActionListener(this);
+
+            getContentPane().add(button);
+            setBounds(0,0,200,200);
+            pack();
+        }
+        public void actionPerformed(ActionEvent event) {
+            String cmd = event.getActionCommand();
+            switch(cmd) {
+                case "RESET":
+                    resetBoard();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    private static class resultWindow extends JFrame {
+        public static void createWindow(String content) {
+            resultWindow rw = new resultWindow();
+            rw.init(content);
+        }
+        private void init(String content) {
+            setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            setTitle("Result");
+            setVisible(true);
+            setPreferredSize(new Dimension(200,100));
+            // setResizable(false);
+            resultLabel = new JLabel(content, SwingConstants.CENTER);
+            getContentPane().add(resultLabel);
+            pack();
+        }
     }
 }
