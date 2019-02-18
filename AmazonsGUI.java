@@ -98,49 +98,7 @@ public class AmazonsGUI extends JFrame {
                     break;
                 }
             }
-            Pair p = new Pair(x, y);
-            boolean ct = cb.choosingTarget();
-            boolean co = cb.choosingObstacle();
-            boolean legal = false;
-            if (ct) {
-                for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
-                    if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
-                            && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
-                        legal = true;
-                        break;
-                    }
-                }
-            }
-            if (co) {
-                for (int i = 0; i < cb.movedChess.freedom(cb); i++) {
-                    if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
-                            && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
-                        legal = true;
-                        break;
-                    }
-                }
-            }
-
-            if (ct && legal) {
-                for (int i = 0; i < 64; i++) {
-                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
-                }
-                placePiece(x, y, cb.chessToMove.color);
-                removePiece(cb.chessToMove.x, cb.chessToMove.y);
-                cb.moveChess(x, y);
-                displayFreedom(x, y);
-            } else if (co && legal) {
-                for (int i = 0; i < 64; i++) {
-                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
-                }
-                placePiece(x, y, 2);
-                cb.putObstacle(x, y);
-            } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
-                cb.pressed[x][y] = !(cb.pressed[x][y]);
-                displayFreedom(x, y);
-                cb.setChessToMove();
-            } else if (!cb.hasPiece(x, y)) {
-            }
+            reactToMouseClick(x, y);
         }
         // @Override
         // public void mouseReleased(MouseEvent me) {
@@ -228,6 +186,7 @@ public class AmazonsGUI extends JFrame {
     private void placePiece(int x, int y, int c) {
         glass.remove(x * 8 + y);
         glass.add(new DrawChessPiece(c), x * 8 + y);
+        glass.revalidate();
     }
 
     private void removePiece(int x, int y) {
@@ -266,7 +225,7 @@ public class AmazonsGUI extends JFrame {
         }
     }
 
-    private static void displayFreedom(int x, int y) {
+    private void displayFreedom(int x, int y) {
         // change the color on the base pane (the chessboard) to display available
         // positions for chesspiece on (x, y)
         // basically you can use squaresPanel
@@ -283,4 +242,49 @@ public class AmazonsGUI extends JFrame {
         }
     }
 
+    private void reactToMouseClick(int x,int y) {
+        Pair p = new Pair(x, y);
+            boolean ct = cb.choosingTarget();
+            boolean co = cb.choosingObstacle();
+            boolean legal = false;
+            if (ct) {
+                for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
+                    if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
+                            && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
+                        legal = true;
+                        break;
+                    }
+                }
+            }
+            if (co) {
+                for (int i = 0; i < cb.movedChess.freedom(cb); i++) {
+                    if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
+                            && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
+                        legal = true;
+                        break;
+                    }
+                }
+            }
+
+            if (ct && legal) {
+                for (int i = 0; i < 64; i++) {
+                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                }
+                placePiece(x, y, cb.chessToMove.color);
+                removePiece(cb.chessToMove.x, cb.chessToMove.y);
+                cb.moveChess(x, y);
+                displayFreedom(x, y);
+            } else if (co && legal) {
+                for (int i = 0; i < 64; i++) {
+                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                }
+                placePiece(x, y, 2);
+                cb.putObstacle(x, y);
+            } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
+                cb.pressed[x][y] = !(cb.pressed[x][y]);
+                displayFreedom(x, y);
+                cb.setChessToMove();
+            } else if (!cb.hasPiece(x, y)) {
+            }
+    }
 }
