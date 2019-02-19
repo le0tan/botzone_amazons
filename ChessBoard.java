@@ -138,6 +138,7 @@ public class ChessBoard {
     public int declareResult() {
         // 0 stands for black wins
         // 1 stands for white wins
+        // 2 stands for a tie
         // -1 stands for game continues
         int counterb = 0;
         for (int i = 0; i < 4; i++) {
@@ -150,7 +151,7 @@ public class ChessBoard {
                 counterw++;
         }
         if (counterb == 4 && counterw == 4)
-            return 2;
+            return 2;   // ????
         if (counterb == 4)
             return 1;
         if (counterw == 4)
