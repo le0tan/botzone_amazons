@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.Stroke;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-import javax.swing.border.StrokeBorder;
 
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -26,8 +24,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 
 import java.util.List;
 
@@ -114,14 +112,7 @@ public class AmazonsGUI extends JFrame {
     };
     private static JLabel resultLabel;
 
-    public static void main(String[] args) {
-        AmazonsGUI ag = new AmazonsGUI();
-        ag.initComponents();
-        // resultWindow.createWindow("I won!");
-        ag.new controlPanel().createWindow();
-    }
-
-    private void initComponents() {
+    public void initMainFrame() {
         // Get the default size of our windows
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         int boardSize = 0;
@@ -154,8 +145,8 @@ public class AmazonsGUI extends JFrame {
         // placePiece(2,3);
         // I don't understand
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
+        centreWindow(this);
         pack();
-        // centreWindow(this);
     }
 
     public static void centreWindow(Window frame) {
@@ -331,19 +322,21 @@ public class AmazonsGUI extends JFrame {
         
             int result = cb.declareResult();
             if(result != -1) {
-                resultWindow.createWindow(Integer.toString(result));
+                ResultWindow.createWindow(Integer.toString(result));
             }
     }
-    private class controlPanel extends JFrame implements ActionListener{
+    
+    public class ControlPanel extends JFrame implements ActionListener{
         public void createWindow() {
-            controlPanel w = new controlPanel();
+            ControlPanel w = new ControlPanel();
             w.init();
         }
         private void init() {
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             setTitle("Command Center");
-            setVisible(true);
             setPreferredSize(new Dimension(400,70));
+            setUndecorated(true);
+            setVisible(true);
             
             JButton button = new JButton("Reset Game");
             // button.setSize(new Dimension(100, 70));
@@ -365,9 +358,10 @@ public class AmazonsGUI extends JFrame {
             }
         }
     }
-    private static class resultWindow extends JFrame {
+
+    private static class ResultWindow extends JFrame {
         public static void createWindow(String content) {
-            resultWindow rw = new resultWindow();
+            ResultWindow rw = new ResultWindow();
             rw.init(content);
         }
         private void init(String content) {
@@ -379,6 +373,42 @@ public class AmazonsGUI extends JFrame {
             resultLabel = new JLabel(content, SwingConstants.CENTER);
             getContentPane().add(resultLabel);
             pack();
+        }
+    }
+
+    public class StartingScreen extends JFrame implements ActionListener{
+        public void createWindow() {
+            StartingScreen ss = new StartingScreen();
+            ss.init();
+        }
+        private void init() {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            setTitle("Starting Screen");
+            setPreferredSize(new Dimension(200,70));
+            setUndecorated(true);
+            setVisible(true);
+            centreWindow(this);
+            
+            JButton button = new JButton("Start PvP locally");
+            // button.setSize(new Dimension(100, 70));
+            button.setActionCommand("1");
+            button.addActionListener(this);
+
+            getContentPane().add(button);
+            // setBounds(0,0,200,200);
+            pack();
+        }
+        public void actionPerformed(ActionEvent event) {
+            String cmd = event.getActionCommand();
+            switch(cmd) {
+                case "1":
+                    initMainFrame();
+                    new ControlPanel().createWindow();
+                    dispose();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
