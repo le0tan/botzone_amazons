@@ -40,7 +40,7 @@ public class Amazons {
 
     public static void main(String args[]) {
         AmazonsGUI gui = new AmazonsGUI();
-        //gui.
+        // gui.
         ChessBoard cb = new ChessBoard();
         Scanner sc = new Scanner(System.in);
         boolean ok = false;
@@ -90,13 +90,14 @@ public class Amazons {
                 RandomAI aiw = new RandomAI();
                 // TODO:implement calculating AI
 
+                Move move = new Move(0, 0, 0, 0, 0, 0);
                 do {
                     if (cb.colorForTurn() == 0) {
                         System.out.println("It is turn for the black.");
-                        cb = aib.randomAI(cb);
+                        move = aib.randomAI(cb);
                     } else if (cb.colorForTurn() == 1) {
                         System.out.println("It is turn for the white.");
-                        cb = aiw.randomAI(cb);
+                        move = aiw.randomAI(cb);
                     }
                     cb.printBoard();
                     boolean checkres = checkResult(cb);
@@ -158,7 +159,7 @@ public class Amazons {
                                 continue;
                         } else if (cb.colorForTurn() == 1) {
                             System.out.println("It is turn for the computer.");
-                            cb = ai.randomAI(cb);
+                            Move move = ai.randomAI(cb);
                         }
                         cb.printBoard();
                         boolean checkres = checkResult(cb);
@@ -169,7 +170,7 @@ public class Amazons {
                     do {
                         if (cb.colorForTurn() == 0) {
                             System.out.println("It is turn for the computer.");
-                            cb = ai.randomAI(cb);
+                            Move move = ai.randomAI(cb);
                         } else if (cb.colorForTurn() == 1) {
                             System.out.println("It is your turn.");
                             ok = cb.moveStepFromInput();
