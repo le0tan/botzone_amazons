@@ -1,4 +1,4 @@
-# botzone_amazons
+# Amazons
 
 This project is a JAVA re-implementation of [BOTZONE](cn.botzone.org) that's created and maintained by PKU.
 
@@ -6,10 +6,30 @@ This project is a JAVA re-implementation of [BOTZONE](cn.botzone.org) that's cre
 
 - Design the classes and loading procedure ✔
 - Implement the CLI interface using `ChessBoard`, `ChessPiece` and `Amazons` only ✔
-- Implement the GUI (hard and unfamiliar)
-- Implement the AI feature inside `BotAmazons`
+- Implement the GUI (hard and unfamiliar) ✔
+- Refine local playing experience
+- Implement the AI feature inside `BotAmazons` 
 - Implement LAN multiplayer (future)
 - Implement online multiplayer (easy peasy after LAN)
+
+## To-dos for Feburary 21
+
+- Add "Back to menu" button in ControlPanel
+- Listen for window actions to fake "one window" effect [Link here](https://stackoverflow.com/questions/13792657/is-it-possible-to-perform-some-action-before-a-jframe-is-minimized)
+- Implement information bar (Played steps, current color)
+- Implement saving feature
+    - Implement read saving feature in ChessBoard (Need to add played steps variable in ChessBoard class)
+    - Implement refresh from ChessBoard feature in AmazonsGUI (Need to refresh the board and the information bar)
+    - Then we have undo feature easily!
+    - Implement save to/load from file feature using FileIO
+
+
+## To-dos for Feburary 16
+
+- Implement the first version of DrawChessPiece (in AmazonsGUI.java, the private class inside the public class). (Refer to Graphics2D for more information)
+- Implement click to place chess piece; black pieces and white pieces should appear by turns
+- Implement displayFreedom() method
+
 
 ## To-dos for Feburary 12
 
@@ -30,9 +50,3 @@ while(cond) {
     // add those extended states to q
 }
 ```
-
-## To-dos for Feburary 16
-
-- Implement the first version of DrawChessPiece (in AmazonsGUI.java, the private class inside the public class). (Refer to Graphics2D for more information)
-- Implement click to place chess piece; black pieces and white pieces should appear by turns
-- Implement displayFreedom() method

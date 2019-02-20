@@ -44,6 +44,7 @@ public class AmazonsGUI extends JFrame {
     private static int SQUARE_COL;
     private static int playMode = 0;
     private static int declaredResult = 0;
+    private static ResultWindow resultWindow;
 
     private static ChessBoard cb = new ChessBoard();
     RandomAI rai = new RandomAI();
@@ -123,15 +124,16 @@ public class AmazonsGUI extends JFrame {
         if (playMode == 3) {
             runAI();
             int result = cb.declareResult();
+            resultWindow = new ResultWindow();
             switch (result) {
             case 0:
-                ResultWindow.createWindow("The black wins!");
+                resultWindow.createWindow("The black wins!");
                 break;
             case 1:
-                ResultWindow.createWindow("The white wins!");
+                resultWindow.createWindow("The white wins!");
                 break;
             case 2:
-                ResultWindow.createWindow("This is a tie");
+                resultWindow.createWindow("This is a tie");
                 break;
             default:
                 break;
@@ -202,13 +204,13 @@ public class AmazonsGUI extends JFrame {
         int result = cb.declareResult();
         switch (result) {
         case 0:
-            ResultWindow.createWindow("The black wins!");
+            resultWindow.createWindow("The black wins!");
             break;
         case 1:
-            ResultWindow.createWindow("The white wins!");
+            resultWindow.createWindow("The white wins!");
             break;
         case 2:
-            ResultWindow.createWindow("This is a tie");
+            resultWindow.createWindow("This is a tie");
             break;
         default:
             break;
@@ -401,31 +403,33 @@ public class AmazonsGUI extends JFrame {
             setPreferredSize(new Dimension(200, 400));
             this.setSize(200, 400);
             centreWindow(this);
+            setUndecorated(true);
+            setLayout(new GridLayout(4, 1));
             setVisible(true);
             int x = getContentPane().getLocation().x;
             int y = getContentPane().getLocation().y;
 
             JButton button1 = new JButton("Start PvP locally");
-            button1.setBounds(x + 10, y + 10, 160, 70);
+            // button1.setBounds(x + 10, y + 10, 160, 70);
             button1.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button1.setActionCommand("1");
             button1.addActionListener(this);
 
             JButton button2 = new JButton("Start PvC as black");
-            button2.setBounds(x + 10, y + 90, 160, 70);
-            button2.setSize(160, 70);
+            // button2.setBounds(x + 10, y + 90, 160, 70);
+            // button2.setSize(160, 70);
             button2.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button2.setActionCommand("2");
             button2.addActionListener(this);
 
             JButton button3 = new JButton("Start PvC as white");
-            button3.setBounds(x + 10, y + 170, 160, 70);
+            // button3.setBounds(x + 10, y + 170, 160, 70);
             button3.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button3.setActionCommand("3");
             button3.addActionListener(this);
 
             JButton button4 = new JButton("Let AI play with itself");
-            button4.setBounds(x + 10, y + 250, 160, 70);
+            // button4.setBounds(x + 10, y + 250, 160, 70);
             button4.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button4.setActionCommand("4");
             button4.addActionListener(this);
@@ -437,7 +441,7 @@ public class AmazonsGUI extends JFrame {
             getContentPane().add(button2);
             getContentPane().add(button3);
             getContentPane().add(button4);
-            getContentPane().add(button5);
+            // getContentPane().add(button5);
             button1.repaint();
             button2.repaint();
             button3.repaint();
@@ -508,6 +512,10 @@ public class AmazonsGUI extends JFrame {
             switch (cmd) {
             case "RESET":
                 resetBoard();
+                declaredResult = 0;
+                if(resultWindow != null) {
+                    resultWindow.closeWindow();
+                }
                 break;
             default:
                 break;
@@ -516,10 +524,9 @@ public class AmazonsGUI extends JFrame {
     }
 
     private static class ResultWindow extends JFrame {
-        public static void createWindow(String content) {
-            ResultWindow rw = new ResultWindow();
-            rw.init(content);
-            centreWindow(rw);
+        public void createWindow(String content) {
+            this.init(content);
+            centreWindow(this);
         }
 
         private void init(String content) {
@@ -531,6 +538,10 @@ public class AmazonsGUI extends JFrame {
             resultLabel = new JLabel(content, SwingConstants.CENTER);
             getContentPane().add(resultLabel);
             pack();
+        }
+
+        public void closeWindow() {
+            dispose();
         }
     }
 }
