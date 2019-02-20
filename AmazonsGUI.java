@@ -259,9 +259,6 @@ public class AmazonsGUI extends JFrame {
             placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
             placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
         }
-        if (playMode == 1) {
-            runAI();
-        }
         // removePiece(cb.coordBlack[0][0], cb.coordBlack[1][0]);
         // placePieces();
         // placePiece(2,3);
@@ -269,6 +266,9 @@ public class AmazonsGUI extends JFrame {
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
         centreWindow(this);
         pack();
+        if (playMode == 2) {
+            runAI();
+        }
     }
 
     public static void centreWindow(Window frame) {
@@ -455,22 +455,22 @@ public class AmazonsGUI extends JFrame {
                 dispose();
                 break;
             case "2":
+                playMode = 1;
                 initMainFrame();
                 new ControlPanel().createWindow();
                 dispose();
-                playMode = 1;
                 break;
             case "3":
+                playMode = 2;
                 initMainFrame();
                 new ControlPanel().createWindow();
                 dispose();
-                playMode = 2;
                 break;
             case "4":
+                playMode = 3;
                 initMainFrame();
                 new ControlPanel().createWindow();
                 dispose();
-                playMode = 3;
                 break;
             default:
                 break;
