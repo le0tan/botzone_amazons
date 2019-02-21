@@ -1,5 +1,7 @@
 import java.util.Scanner;
-import java.util.InputMismatchException;;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * ChessBoard
@@ -12,6 +14,8 @@ public class ChessBoard {
     ChessPiece[] white = new ChessPiece[4];
     int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
     int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
+    List<Move> history = new ArrayList<Move>();
+    Move move = new Move(0, 0, 0, 0, 0, 0);
 
     boolean[][] pressed = new boolean[8][8];
     ChessPiece chessToMove = null;
@@ -135,6 +139,32 @@ public class ChessBoard {
         return true;
     }
 
+    public Move undo() {
+        Move move = history.get(history.size() - 1);
+        history.remove(history.size() - 1);
+        turn--;
+        ChessPiece temp = new ChessPiece(move.src_x, move.src_y, colorForTurn(), false);
+        if (colorForTurn() == 0) {
+            for (int i = 0; i < 4; i++) {
+                if (black[i] == board[move.tar_x][move.tar_y]) {
+                    black[i] = temp;
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < 4; i++) {
+                if (white[i] == board[move.tar_x][move.tar_y]) {
+                    white[i] = temp;
+                    break;
+                }
+            }
+        }
+        removePiece(move.obs_x, move.obs_y);
+        removePiece(move.tar_x, move.tar_y);
+        putPiece(temp);
+        return move;
+    }
+
     public int declareResult() {
         // 0 stands for black wins
         // 1 stands for white wins
@@ -151,7 +181,7 @@ public class ChessBoard {
                 counterw++;
         }
         if (counterb == 4 && counterw == 4)
-            return 2;   // ????
+            return 2; // ????
         if (counterb == 4)
             return 1;
         if (counterw == 4)
@@ -245,6 +275,10 @@ public class ChessBoard {
     }
 
     public void moveChess(int tar_x, int tar_y) {
+        move.src_x = chessToMove.x;
+        move.src_y = chessToMove.y;
+        move.tar_x = tar_x;
+        move.tar_y = tar_y;
         movedChess = new ChessPiece(tar_x, tar_y, chessToMove.color, false);
         board[tar_x][tar_y] = movedChess;
         pressed[tar_x][tar_y] = true;
@@ -273,6 +307,9 @@ public class ChessBoard {
         board[x][y] = new ChessPiece(x, y, 2, true);
         movedChess = null;
         turn++;
+        move.obs_x = x;
+        move.obs_y = y;
+        history.add(new Move(move.src_x, move.src_y, move.tar_x, move.tar_y, move.obs_x, move.obs_y));
     }
 
     /** End of GUI related methods **/
