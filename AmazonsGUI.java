@@ -7,6 +7,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 
@@ -23,8 +24,11 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.awt.geom.Ellipse2D;
@@ -42,11 +46,12 @@ public class AmazonsGUI extends JFrame {
     private static Dimension preferredSize = new Dimension();
     private static int NUM_OF_ROWS = 8;
     private static int NUM_OF_COLS = 8;
-    private static int SQUARE_ROW;
+    // private static int SQUARE_ROW;
     private static int SQUARE_COL;
     private static int playMode = 0;
     private static int declaredResult = 0;
     private static ResultWindow resultWindow;
+    private static ControlPanel controlPanel;
 
     private static ChessBoard cb = new ChessBoard();
     RandomAI rai = new RandomAI();
@@ -239,6 +244,36 @@ public class AmazonsGUI extends JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Amazons");
 
+        // window action listener
+        controlPanel = new ControlPanel();
+        controlPanel.setVisible(false);
+        WindowAdapter wa1 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                controlPanel.setState(e.getNewState());
+            }
+        };
+        JFrame currentMainframe = this;
+        WindowAdapter wa2 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                currentMainframe.setState(e.getNewState());
+            }
+        };
+        this.addWindowStateListener(wa1);
+        controlPanel.addWindowStateListener(wa2);
+
+        // window movement listener
+        ComponentAdapter ca = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                controlPanel.setLocationRelativeTo(currentMainframe);
+                Point p = currentMainframe.getLocation();
+                controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
+            }
+        };
+        this.addComponentListener(ca);
+
         getContentPane().add(squaresPanel, BorderLayout.CENTER);
         setVisible(false);
         preferredSize.width = boardSize;
@@ -303,7 +338,7 @@ public class AmazonsGUI extends JFrame {
                 square.addMouseListener(adaptor);
                 squaresPanel.add(square);
                 this.pack();
-                SQUARE_ROW = square.getSize().width;
+                // SQUARE_ROW = square.getSize().width;
                 // We don't know why the width changes here.
                 SQUARE_COL = square.getSize().height;
             }
@@ -418,33 +453,28 @@ public class AmazonsGUI extends JFrame {
             setPreferredSize(new Dimension(200, 400));
             this.setSize(200, 400);
             centreWindow(this);
-            setUndecorated(true);
+            // setUndecorated(true);
             setLayout(new GridLayout(4, 1));
             setVisible(true);
             int x = getContentPane().getLocation().x;
             int y = getContentPane().getLocation().y;
 
             JButton button1 = new JButton("Start PvP locally");
-            // button1.setBounds(x + 10, y + 10, 160, 70);
             button1.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button1.setActionCommand("1");
             button1.addActionListener(this);
 
             JButton button2 = new JButton("Start PvC as black");
-            // button2.setBounds(x + 10, y + 90, 160, 70);
-            // button2.setSize(160, 70);
             button2.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button2.setActionCommand("2");
             button2.addActionListener(this);
 
             JButton button3 = new JButton("Start PvC as white");
-            // button3.setBounds(x + 10, y + 170, 160, 70);
             button3.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button3.setActionCommand("3");
             button3.addActionListener(this);
 
             JButton button4 = new JButton("Let AI play with itself");
-            // button4.setBounds(x + 10, y + 250, 160, 70);
             button4.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
             button4.setActionCommand("4");
             button4.addActionListener(this);
@@ -456,12 +486,10 @@ public class AmazonsGUI extends JFrame {
             getContentPane().add(button2);
             getContentPane().add(button3);
             getContentPane().add(button4);
-            // getContentPane().add(button5);
             button1.repaint();
             button2.repaint();
             button3.repaint();
             button4.repaint();
-            // setBounds(0,0,200,200);
             pack();
         }
 
@@ -470,25 +498,29 @@ public class AmazonsGUI extends JFrame {
             switch (cmd) {
             case "1":
                 showChessBoard();
-                new ControlPanel().createWindow();
+                controlPanel.createWindow();
+                controlPanel.setVisible(true);
                 dispose();
                 break;
             case "2":
                 playMode = 1;
                 showChessBoard();
-                new ControlPanel().createWindow();
+                controlPanel.createWindow();
+                controlPanel.setVisible(true);
                 dispose();
                 break;
             case "3":
                 playMode = 2;
                 showChessBoard();
-                new ControlPanel().createWindow();
+                controlPanel.createWindow();
+                controlPanel.setVisible(true);
                 dispose();
                 break;
             case "4":
                 playMode = 3;
                 showChessBoard();
-                new ControlPanel().createWindow();
+                controlPanel.createWindow();
+                controlPanel.setVisible(true);
                 dispose();
                 break;
             default:
@@ -497,20 +529,17 @@ public class AmazonsGUI extends JFrame {
         }
     }
 
-    // private WindowStateListener wsl=new WindowStateListener(){
-
-    // @Override
-    // public void windowStateChanged(WindowEvent we) {
-    // if(we.getNewState()==Frame.ICONIFIED) {
-
-    // }
-    // }
-    // };
-
     public class ControlPanel extends JFrame implements ActionListener {
-        public void createWindow() {
-            ControlPanel w = new ControlPanel();
-            w.init();
+        private boolean isCreated = false;
+
+        public ControlPanel createWindow() {
+            if(isCreated) {
+                return this;
+            } else {
+                this.init();
+                isCreated = true;
+                return this;
+            }
         }
 
         private void close() {
@@ -524,7 +553,6 @@ public class AmazonsGUI extends JFrame {
             setUndecorated(true);
             setLayout(new GridLayout(1, 3));
             setVisible(true);
-            // addWindowStateListener(wsl);
 
             JButton button1 = new JButton("Reset Game");
             button1.setActionCommand("RESET");

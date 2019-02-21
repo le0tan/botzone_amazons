@@ -15,12 +15,12 @@ This project is a JAVA re-implementation of [BOTZONE](cn.botzone.org) that's cre
 ## To-dos for Feburary 21
 
 - Add "Back to menu" button in ControlPanel
-- Listen for window actions to fake "one window" effect [Link here](https://stackoverflow.com/questions/13792657/is-it-possible-to-perform-some-action-before-a-jframe-is-minimized)
+- Listen for window actions to fake "one window" effect [Link here](https://stackoverflow.com/questions/13792657/is-it-possible-to-perform-some-action-before-a-jframe-is-minimized) ✔
 - Implement information bar (Played steps, current color)
 - Implement saving feature
     - Implement read saving feature in ChessBoard (Need to add played steps variable in ChessBoard class)
     - Implement refresh from ChessBoard feature in AmazonsGUI (Need to refresh the board and the information bar)
-    - Then we have undo feature easily!
+    - Then we have undo feature easily! ✔
     - Implement save to/load from file feature using FileIO
 
 
