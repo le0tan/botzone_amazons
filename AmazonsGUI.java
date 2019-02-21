@@ -2,6 +2,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,6 +26,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.awt.geom.Ellipse2D;
 
 import java.util.List;
@@ -219,18 +221,6 @@ public class AmazonsGUI extends JFrame {
             declaredResult = 1;
     }
 
-    private void runAI() {
-        int colorForTurn = 0;
-        Move move = rai.randomAI(cb);
-        if (cb.colorForTurn() == 0)
-            colorForTurn = 1;
-        else
-            colorForTurn = 0;
-        removePiece(move.src_x, move.src_y);
-        placePiece(move.tar_x, move.tar_y, colorForTurn);
-        placePiece(move.obs_x, move.obs_y, 2);
-    }
-
     private static JLabel resultLabel;
 
     public void initMainFrame() {
@@ -250,7 +240,7 @@ public class AmazonsGUI extends JFrame {
         setTitle("Amazons");
 
         getContentPane().add(squaresPanel, BorderLayout.CENTER);
-        setVisible(true);
+        setVisible(false);
         preferredSize.width = boardSize;
         preferredSize.height = boardSize;
         setPreferredSize(preferredSize);
@@ -261,16 +251,21 @@ public class AmazonsGUI extends JFrame {
             placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
             placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
         }
-        // removePiece(cb.coordBlack[0][0], cb.coordBlack[1][0]);
-        // placePieces();
-        // placePiece(2,3);
-        // I don't understand
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
         centreWindow(this);
         pack();
+    }
+
+    public void showChessBoard() {
         if (playMode == 2) {
             runAI();
         }
+        setVisible(true);
+    }
+
+    public void closeChessBoard() {
+        resetBoard();
+        setVisible(false);
     }
 
     public static void centreWindow(Window frame) {
@@ -281,7 +276,6 @@ public class AmazonsGUI extends JFrame {
     }
 
     private void resetBoard() {
-        System.out.println("Initiated board reset!!");
         cb = new ChessBoard();
         for (int i = 0; i < NUM_OF_ROWS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
@@ -343,6 +337,27 @@ public class AmazonsGUI extends JFrame {
         glass.add(glasses, x * 8 + y);
         glass.revalidate();
         glass.repaint();
+    }
+
+    private void runAI() {
+        int colorForTurn = 0;
+        Move move = rai.randomAI(cb);
+        if (cb.colorForTurn() == 0)
+            colorForTurn = 1;
+        else
+            colorForTurn = 0;
+        removePiece(move.src_x, move.src_y);
+        placePiece(move.tar_x, move.tar_y, colorForTurn);
+        placePiece(move.obs_x, move.obs_y, 2);
+    }
+
+    private void undo() {
+        if (cb.history.size() == 0)
+            return;
+        Move move = cb.undo();
+        removePiece(move.tar_x, move.tar_y);
+        removePiece(move.obs_x, move.obs_y);
+        placePiece(move.src_x, move.src_y, cb.colorForTurn());
     }
 
     private class DrawChessPiece extends JComponent {
@@ -454,25 +469,25 @@ public class AmazonsGUI extends JFrame {
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "1":
-                initMainFrame();
+                showChessBoard();
                 new ControlPanel().createWindow();
                 dispose();
                 break;
             case "2":
                 playMode = 1;
-                initMainFrame();
+                showChessBoard();
                 new ControlPanel().createWindow();
                 dispose();
                 break;
             case "3":
                 playMode = 2;
-                initMainFrame();
+                showChessBoard();
                 new ControlPanel().createWindow();
                 dispose();
                 break;
             case "4":
                 playMode = 3;
-                initMainFrame();
+                showChessBoard();
                 new ControlPanel().createWindow();
                 dispose();
                 break;
@@ -482,10 +497,24 @@ public class AmazonsGUI extends JFrame {
         }
     }
 
+    // private WindowStateListener wsl=new WindowStateListener(){
+
+    // @Override
+    // public void windowStateChanged(WindowEvent we) {
+    // if(we.getNewState()==Frame.ICONIFIED) {
+
+    // }
+    // }
+    // };
+
     public class ControlPanel extends JFrame implements ActionListener {
         public void createWindow() {
             ControlPanel w = new ControlPanel();
             w.init();
+        }
+
+        private void close() {
+            this.setVisible(false);
         }
 
         private void init() {
@@ -493,14 +522,26 @@ public class AmazonsGUI extends JFrame {
             setTitle("Command Center");
             setPreferredSize(new Dimension(preferredSize.width, 70));
             setUndecorated(true);
+            setLayout(new GridLayout(1, 3));
             setVisible(true);
+            // addWindowStateListener(wsl);
 
-            JButton button = new JButton("Reset Game");
-            // button.setSize(new Dimension(100, 70));
-            button.setActionCommand("RESET");
-            button.addActionListener(this);
+            JButton button1 = new JButton("Reset Game");
+            button1.setActionCommand("RESET");
+            button1.addActionListener(this);
 
-            getContentPane().add(button);
+            JButton button2 = new JButton("Back to Menu");
+            button2.setActionCommand("BACK");
+            button2.addActionListener(this);
+
+            JButton button3 = new JButton("Undo");
+            button3.setActionCommand("UNDO");
+            button3.addActionListener(this);
+
+            getContentPane().add(button3);
+            getContentPane().add(button1);
+            getContentPane().add(button2);
+
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
             setBounds((dim.width - preferredSize.width) / 2, (dim.height + preferredSize.height) / 2,
                     preferredSize.width, 400);
@@ -513,8 +554,22 @@ public class AmazonsGUI extends JFrame {
             case "RESET":
                 resetBoard();
                 declaredResult = 0;
-                if(resultWindow != null) {
+                if (resultWindow != null) {
                     resultWindow.closeWindow();
+                }
+                break;
+            case "BACK":
+                new StartingScreen().createWindow();
+                closeChessBoard();
+                dispose();
+                break;
+            case "UNDO":
+                undo();
+                if (playMode == 1 || playMode == 2) {
+                    undo();
+                }
+                if (playMode == 2 && cb.history.size() == 0) {
+                    runAI();
                 }
                 break;
             default:
