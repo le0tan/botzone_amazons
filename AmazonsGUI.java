@@ -376,7 +376,7 @@ public class AmazonsGUI extends JFrame {
 
     private void runAI() {
         int colorForTurn = 0;
-        Move move = rai.randomAI(cb);
+        Move move = rai.nextMove(cb);
         if (cb.colorForTurn() == 0)
             colorForTurn = 1;
         else

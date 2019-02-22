@@ -94,10 +94,10 @@ public class Amazons {
                 do {
                     if (cb.colorForTurn() == 0) {
                         System.out.println("It is turn for the black.");
-                        move = aib.randomAI(cb);
+                        move = aib.nextMove(cb);
                     } else if (cb.colorForTurn() == 1) {
                         System.out.println("It is turn for the white.");
-                        move = aiw.randomAI(cb);
+                        move = aiw.nextMove(cb);
                     }
                     cb.printBoard();
                     boolean checkres = checkResult(cb);
@@ -159,7 +159,7 @@ public class Amazons {
                                 continue;
                         } else if (cb.colorForTurn() == 1) {
                             System.out.println("It is turn for the computer.");
-                            Move move = ai.randomAI(cb);
+                            Move move = ai.nextMove(cb);
                         }
                         cb.printBoard();
                         boolean checkres = checkResult(cb);
@@ -170,7 +170,7 @@ public class Amazons {
                     do {
                         if (cb.colorForTurn() == 0) {
                             System.out.println("It is turn for the computer.");
-                            Move move = ai.randomAI(cb);
+                            Move move = ai.nextMove(cb);
                         } else if (cb.colorForTurn() == 1) {
                             System.out.println("It is your turn.");
                             ok = cb.moveStepFromInput();

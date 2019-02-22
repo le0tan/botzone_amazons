@@ -5,12 +5,12 @@
 
 import java.util.*;
 
-public class RandomAI {
+public class RandomAI extends AmazonsAI{
 
     // ChessPiece[] chesses= new ChessPiece[4];
     // ChessBoard board= new ChessBoard();
 
-    public Move randomAI(ChessBoard board) {
+    public Move nextMove(ChessBoard board) {
         Move move = new Move(0, 0, 0, 0, 0, 0);
         ChessPiece[] chesses = new ChessPiece[4];
         if (board.colorForTurn() == 0)
