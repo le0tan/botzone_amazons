@@ -16,6 +16,7 @@ public abstract class FileWatcher {
     private Path folderPath;
     private String watchFile;
     private Path filePath;
+    private String nameOfOS;
 
     public FileWatcher(String watchFile) throws IllegalArgumentException {
 
@@ -33,6 +34,7 @@ public abstract class FileWatcher {
 
         // Keep this relative to the watched folder
         this.watchFile = watchFile.replace(folderPath.toString() + File.separator, "");
+        nameOfOS = System.getProperty("os.name");
     }
 
     public void watchFile() throws Exception {
@@ -49,21 +51,22 @@ public abstract class FileWatcher {
             // is-java-7-watchservice-slow-for-anyone-else
             folderPath.register(service, new WatchEvent.Kind[] { StandardWatchEventKinds.ENTRY_MODIFY },
                     SensitivityWatchEventModifier.HIGH);
-
-            // Start the infinite polling loop
-            while (true) {
-                // Wait for the next event
-                WatchKey watchKey = service.take();
-
-                for (WatchEvent<?> watchEvent : watchKey.pollEvents()) {
-                    // Get the type of the event
-                    Kind<?> kind = watchEvent.kind();
-
-                    if (kind == ENTRY_MODIFY) {
-                        Path watchEventPath = (Path) watchEvent.context();
-
+                    // Start the infinite polling loop
+                    while (true) {
+                        // Wait for the next event
+                        WatchKey watchKey = service.take();
+                        
+                        for (WatchEvent<?> watchEvent : watchKey.pollEvents()) {
+                            // Get the type of the event
+                            Kind<?> kind = watchEvent.kind();
+                            
+                            if (kind == ENTRY_MODIFY) {
+                                Path watchEventPath = (Path) watchEvent.context();
+                                String eventPath = folderPath+(nameOfOS.contains("Windows") ? "/" : "\\")+watchEventPath.toString();
+                                
                         // Call this if the right file is involved
-                        if (watchEventPath.toString().equals(watchFile)) {
+                        
+                        if (eventPath.equals(watchFile)) {
                             onModified();
                         }
                     }
