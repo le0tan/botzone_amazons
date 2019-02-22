@@ -8,14 +8,14 @@ import java.util.ArrayList;
  */
 public class ChessBoard {
 
-    ChessPiece[][] board = new ChessPiece[8][8];
-    int turn;
-    ChessPiece[] black = new ChessPiece[4];
-    ChessPiece[] white = new ChessPiece[4];
-    int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
-    int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
-    List<Move> history = new ArrayList<Move>();
-    Move move = new Move(0, 0, 0, 0, 0, 0);
+    public ChessPiece[][] board = new ChessPiece[8][8];
+    private int turn;
+    public ChessPiece[] black = new ChessPiece[4];
+    public ChessPiece[] white = new ChessPiece[4];
+    public static final int[][] coordBlack = { { 5, 7, 7, 5 }, { 0, 2, 5, 7 } };
+    public static final int[][] coordWhite = { { 2, 0, 0, 2 }, { 0, 2, 5, 7 } };
+    public List<Move> history = new ArrayList<Move>();
+    private Move move = new Move(0, 0, 0, 0, 0, 0);
 
     boolean[][] pressed = new boolean[8][8];
     ChessPiece chessToMove = null;
@@ -40,6 +40,34 @@ public class ChessBoard {
                     false);
             this.white[i] = new ChessPiece(coordWhite[0][i], coordWhite[1][i], 1, false);
         }
+    }
+
+    ChessBoard(boolean isClone) {
+
+    }
+
+    protected ChessBoard clone() {
+        ChessBoard res = new ChessBoard(true);
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                pressed[i][j] = false;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                res.board[i][j] = null;
+                if (board[i][j] != null) {
+                    res.board[i][j] = board[i][j].clone();
+                }
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            res.black[i] = black[i].clone();
+            res.white[i] = white[i].clone();
+        }
+        for (Move m : history) {
+            res.history.add(m.clone());
+        }
+        res.turn = turn;
+        return res;
     }
 
     // Methods
@@ -79,20 +107,20 @@ public class ChessBoard {
                 || !withinBoard(move.obs_x, move.obs_y)) {
             return false;
         } else {
-            ChessPiece temp = board[move.src_x][move.src_y];
-            board[move.tar_x][move.tar_y] = temp;
+            ChessPiece temp = board[move.src_x][move.src_y].clone();
             temp.x = move.tar_x;
             temp.y = move.tar_y;
-            if (colorForTurn() == 1) {
+            board[move.tar_x][move.tar_y] = temp;
+            if (colorForTurn() == 0) {
                 for (int i = 0; i < 4; i++) {
-                    if (black[i] == board[move.src_x][move.src_y]) {
+                    if (black[i].equals(board[move.src_x][move.src_y])) {
                         black[i] = temp;
                         break;
                     }
                 }
             } else {
                 for (int i = 0; i < 4; i++) {
-                    if (white[i] == board[move.src_x][move.src_y]) {
+                    if (white[i].equals(board[move.src_x][move.src_y])) {
                         white[i] = temp;
                         break;
                     }
@@ -100,6 +128,7 @@ public class ChessBoard {
             }
             removePiece(move.src_x, move.src_y);
             board[move.obs_x][move.obs_y] = new ChessPiece(move.obs_x, move.obs_y, 2, true);
+            System.out.println("Turn " + turn);
             turn++;
             return true;
         }
@@ -136,6 +165,7 @@ public class ChessBoard {
             System.out.println("Illegal input. Please try again.");
             return false;
         }
+        history.add(move);
         return true;
     }
 

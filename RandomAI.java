@@ -5,12 +5,10 @@
 
 import java.util.*;
 
-public class RandomAI extends AmazonsAI{
+public class RandomAI extends AmazonsAI {
 
-    // ChessPiece[] chesses= new ChessPiece[4];
-    // ChessBoard board= new ChessBoard();
-
-    public Move nextMove(ChessBoard board) {
+    public Move nextMove(ChessBoard inputBoard) {
+        ChessBoard board = inputBoard.clone();
         Move move = new Move(0, 0, 0, 0, 0, 0);
         ChessPiece[] chesses = new ChessPiece[4];
         if (board.colorForTurn() == 0)
@@ -52,8 +50,9 @@ public class RandomAI extends AmazonsAI{
             board.black = chesses;
         else if (board.colorForTurn() == 1)
             board.white = chesses;
-        board.turn++;
-        board.history.add(new Move(move.src_x, move.src_y, move.tar_x, move.tar_y, move.obs_x, move.obs_y));
+        // board.turn++;
+        // board.history.add(new Move(move.src_x, move.src_y, move.tar_x, move.tar_y,
+        // move.obs_x, move.obs_y));
         return move;
     }
 }

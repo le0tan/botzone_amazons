@@ -377,6 +377,7 @@ public class AmazonsGUI extends JFrame {
     private void runAI() {
         int colorForTurn = 0;
         Move move = rai.nextMove(cb);
+        cb.moveStep(move);
         if (cb.colorForTurn() == 0)
             colorForTurn = 1;
         else
@@ -533,7 +534,7 @@ public class AmazonsGUI extends JFrame {
         private boolean isCreated = false;
 
         public ControlPanel createWindow() {
-            if(isCreated) {
+            if (isCreated) {
                 return this;
             } else {
                 this.init();
