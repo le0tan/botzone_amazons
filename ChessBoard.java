@@ -75,7 +75,7 @@ public class ChessBoard {
     }
 
     public boolean movePiece(Move move) {
-        if (!isLegalMove(move.src_x, move.src_y, move.tar_x, move.tar_y, move.obs_x, move.obs_y)
+        if (!isLegalMove(move)
                 || !withinBoard(move.obs_x, move.obs_y)) {
             return false;
         } else {
@@ -117,7 +117,10 @@ public class ChessBoard {
         return Math.abs(x - xx) == Math.abs(y - yy) || x == xx || y == yy;
     }
 
-    public boolean isLegalMove(int src_x, int src_y, int tar_x, int tar_y, int obs_x, int obs_y) {
+    public boolean isLegalMove(Move move) {
+        int src_x = move.src_x, src_y = move.src_y, 
+            tar_x = move.tar_x, tar_y = move.tar_y, 
+            obs_x = move.obs_x, obs_y = move.obs_y;
         return hasPiece(src_x, src_y) && board[src_x][src_y].color == colorForTurn() && !hasPiece(tar_x, tar_y)
                 && (!hasPiece(obs_x, obs_y) || obs_x == src_x && obs_y == src_y)
                 && inQueenPosition(tar_x, tar_y, src_x, src_y) && inQueenPosition(obs_x, obs_y, tar_x, tar_y);
