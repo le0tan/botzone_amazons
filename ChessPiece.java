@@ -21,21 +21,13 @@ public class ChessPiece {
         this.isObstacle = isObstacle;
     }
 
-    // ChessPiece(int x, int y, String color, boolean isObstacle) {
-    // if (!(color.equals("black")||color.equals("white")))
-    // {
-    // this.color = -1;
-    // return;
-    // }
-    // this.x = x;
-    // this.y = y;
-    // this.isObstacle = isObstacle;
-    // if (color.equals("black")) {
-    // this.color = 0;
-    // } else {
-    // this.color = 1;
-    // }
-    // }
+    protected ChessPiece clone() {
+        return new ChessPiece(x, y, color, isObstacle);
+    }
+
+    public boolean equals(ChessPiece obj) {
+        return x == obj.x && y == obj.y && color == obj.color && isObstacle == obj.isObstacle;
+    }
 
     // Methods
 
@@ -89,5 +81,10 @@ public class ChessPiece {
                 return color.equals("black") || color.equals("white");
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%d, %d)", x, y);
     }
 }
