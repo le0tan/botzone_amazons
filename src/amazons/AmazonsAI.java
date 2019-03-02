@@ -1,3 +1,5 @@
+package amazons;
+
 /**
  * AmazonsAI
  */

@@ -1,19 +1,14 @@
+package amazons;
+
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Shape;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,10 +25,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
-import java.awt.geom.Ellipse2D;
-
-import java.util.List;
 
 /**
  * AmazonsGUI
@@ -44,6 +35,8 @@ public class AmazonsGUI extends BasicAmazonsGUI {
     private int declaredResult = 0;
     private ResultWindow resultWindow;
     private ControlPanel controlPanel;
+    private Levels levels;
+    private AmazonsGUI highestLevelReferenceToThis = this;
     RandomAI rai = new RandomAI();
 
     private MouseAdapter adaptor = new MouseAdapter() {
@@ -354,7 +347,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             this.setSize(200, 400);
             centreWindow(this);
             // setUndecorated(true);
-            setLayout(new GridLayout(4, 1));
+            setLayout(new GridLayout(5, 1));
             setVisible(true);
             int x = getContentPane().getLocation().x;
             int y = getContentPane().getLocation().y;
@@ -379,17 +372,21 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             button4.setActionCommand("4");
             button4.addActionListener(this);
 
-            JButton button5 = new JButton();
-            button5.setVisible(false);
+            JButton button5 = new JButton("Play a puzzle solving game");
+            button5.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
+            button5.setActionCommand("5");
+            button5.addActionListener(this);
 
             getContentPane().add(button1);
             getContentPane().add(button2);
             getContentPane().add(button3);
             getContentPane().add(button4);
+            getContentPane().add(button5);
             button1.repaint();
             button2.repaint();
             button3.repaint();
             button4.repaint();
+            button5.repaint();
             pack();
         }
 
@@ -423,9 +420,59 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 controlPanel.setVisible(true);
                 dispose();
                 break;
+            case "5":
+                playMode = 4;
+                levels = new Levels();
+                levels.createWindow();
+                dispose();
+                break;
             default:
                 break;
             }
+        }
+    }
+
+    public class Levels extends JFrame implements ActionListener {
+        public Levels createWindow() {
+            this.init();
+            return this;
+        }
+
+        private void init() {
+            setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            setTitle("Choose level");
+            setPreferredSize(new Dimension(320, 400));
+            this.setSize(320, 400);
+            centreWindow(this);
+            setVisible(true);
+            setLayout(new GridLayout(5, 4));
+            JButton[] buttons = new JButton[20];
+            for (int i = 0; i < 20; i++) {
+                buttons[i] = new JButton(Integer.toString(i + 1));
+                buttons[i].setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
+                buttons[i].setActionCommand(Integer.toString(i + 4));
+                buttons[i].addActionListener(this);
+                getContentPane().add(buttons[i]);
+                buttons[i].repaint();
+            }
+            pack();
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            String cmd = event.getActionCommand();
+            int level = Integer.parseInt(cmd);
+            TargetBoardGUI tbg = new TargetBoardGUI();
+            ChessBoard targetBoard = new ChessBoard();
+            AmazonsAI randomAI = new RandomAI();
+            for(int i=0;i<level;i++) {
+                targetBoard.moveStep(randomAI.nextMove(targetBoard));
+            }
+            tbg.initMainFrame();
+            tbg.initTargetBoard(targetBoard, highestLevelReferenceToThis);
+            // controlPanel.createWindow();
+            // squaresPanel.setLocation(squaresPanel.getLocation().x + squaresPanel.getSize().width / 2,
+            //         squaresPanel.getLocation().y);
+            dispose();
         }
     }
 
