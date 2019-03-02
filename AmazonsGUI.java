@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class AmazonsGUI extends JFrame {
 
-    private static JPanel squaresPanel = new JPanel();
+    private JPanel squaresPanel = new JPanel();
     // private static JPanel glass=new JPanel();
     private JPanel glass = (JPanel) getGlassPane();
     private static Dimension preferredSize = new Dimension();
@@ -48,10 +48,11 @@ public class AmazonsGUI extends JFrame {
     private static int NUM_OF_COLS = 8;
     // private static int SQUARE_ROW;
     private static int SQUARE_COL;
-    private static int playMode = 0;
-    private static int declaredResult = 0;
-    private static ResultWindow resultWindow;
-    private static ControlPanel controlPanel;
+    private int playMode = 0;
+    private int declaredResult = 0;
+    private ResultWindow resultWindow;
+    private ControlPanel controlPanel;
+    private boolean isTarget = false;
 
     private static ChessBoard cb = new ChessBoard();
     RandomAI rai = new RandomAI();
@@ -291,6 +292,80 @@ public class AmazonsGUI extends JFrame {
         pack();
     }
 
+    public void initTargetFrame(ChessBoard targetBoard) {
+        ChessBoard target = targetBoard.clone();
+
+        isTarget = true;
+
+        // Get the default size of our windows
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        int boardSize = 0;
+        int width = dim.width;
+        int height = dim.height;
+        if (width >= height) {
+            boardSize = height / 2;
+        } else {
+            boardSize = width / 2;
+        }
+
+        // init window
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Target Board");
+
+        // window action listener
+        controlPanel = new ControlPanel();
+        controlPanel.setVisible(false);
+        WindowAdapter wa1 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                controlPanel.setState(e.getNewState());
+            }
+        };
+        JFrame currentMainframe = this;
+        WindowAdapter wa2 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                currentMainframe.setState(e.getNewState());
+            }
+        };
+        this.addWindowStateListener(wa1);
+        controlPanel.addWindowStateListener(wa2);
+
+        // window movement listener
+        ComponentAdapter ca = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                controlPanel.setLocationRelativeTo(currentMainframe);
+                Point p = currentMainframe.getLocation();
+                controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
+            }
+        };
+        this.addComponentListener(ca);
+
+        
+        getContentPane().add(squaresPanel, BorderLayout.CENTER);
+        setVisible(true);
+        preferredSize.width = boardSize;
+        preferredSize.height = boardSize;
+        setPreferredSize(preferredSize);
+        setResizable(false);
+        createSquares();
+        createGlass();
+        
+        // add chesspiece components according to target board
+        for(int i=0;i<8;i++) {
+            for(int j=0;j<8;j++) {
+                if(target.board[i][j] != null) {
+                    placePiece(i, j, target.board[i][j].color);
+                }
+            }
+        }
+        
+        setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
+        centreWindow(this);
+        pack();
+    }
+
     public void showChessBoard() {
         if (playMode == 2) {
             runAI();
@@ -335,7 +410,7 @@ public class AmazonsGUI extends JFrame {
                 // square.add(new JLabel(String.format("(%d, %d)", i,j)));
                 // square.add(new DrawChessPiece());
                 // squaresPanel.add(new DrawChessPiece());
-                square.addMouseListener(adaptor);
+                if(!isTarget) square.addMouseListener(adaptor);
                 squaresPanel.add(square);
                 this.pack();
                 // SQUARE_ROW = square.getSize().width;
