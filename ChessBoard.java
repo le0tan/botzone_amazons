@@ -128,7 +128,6 @@ public class ChessBoard {
             }
             removePiece(move.src_x, move.src_y);
             board[move.obs_x][move.obs_y] = new ChessPiece(move.obs_x, move.obs_y, 2, true);
-            System.out.println("Turn " + turn);
             turn++;
             return true;
         }

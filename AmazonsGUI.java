@@ -40,45 +40,304 @@ import java.util.List;
  */
 public class AmazonsGUI extends JFrame {
 
-    private static JPanel squaresPanel = new JPanel();
-    // private static JPanel glass=new JPanel();
-    private JPanel glass = (JPanel) getGlassPane();
-    private static Dimension preferredSize = new Dimension();
-    private static int NUM_OF_ROWS = 8;
-    private static int NUM_OF_COLS = 8;
-    // private static int SQUARE_ROW;
     private static int SQUARE_COL;
+    private static Dimension preferredSize = new Dimension();
+
     private static int playMode = 0;
     private static int declaredResult = 0;
+    private static int initialized = 0;
+    private static int level = 0;
+
+    private static JLabel resultLabel;
     private static ResultWindow resultWindow;
+    public static MainFrame squaresPanel;
     private static ControlPanel controlPanel;
+    private static Levels levels;
+    private static TargetBoard targetBoard;
 
-    private static ChessBoard cb = new ChessBoard();
-    RandomAI rai = new RandomAI();
+    public static void centreWindow(Window frame) {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
+    }
 
-    private MouseAdapter adaptor = new MouseAdapter() {
-        @Override
-        public void mouseEntered(MouseEvent me) {
-            JPanel temp = (JPanel) me.getSource();
-            temp.setBackground(new Color(150, 150, 150));
+    // Class of windows
+    public abstract class ChessBoardGUI extends JFrame {
+        protected ChessBoard cb = new ChessBoard();
+        RandomAI rai = new RandomAI();
+        protected JPanel glass = (JPanel) getGlassPane();
+
+        public abstract void init();
+
+        protected void createSquares(JFrame frame) {
+            frame.setLayout(new GridLayout(8, 8));
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    JPanel square = new JPanel();
+                    square.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
+                    square.setForeground(new Color(0, 0, 0));
+                    square.setBackground(new Color(200, 200, 200));
+                    // square.addMouseListener(adaptor);
+                    frame.add(square);
+                    frame.pack();
+                    SQUARE_COL = square.getSize().height;
+                }
+            }
         }
 
-        @Override
-        public void mouseExited(MouseEvent me) {
-            JPanel temp = (JPanel) me.getSource();
-            Pair p = new Pair();
-            boolean ct = cb.choosingTarget();
-            boolean co = cb.choosingObstacle();
-            boolean legal = false;
-            if (ct || co) {
+        protected void createGlass(JFrame frame) {
+            // setGlassPane(glass);
+            glass.setLayout(new GridLayout(8, 8));
+            glass.setVisible(true);
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    JPanel glasses = new JPanel();
+                    glasses.setVisible(false);
+                    glass.add(glasses);
+                }
+            }
+        }
+
+        protected void placePiece(int x, int y, int c) {
+            glass.remove(x * 8 + y);
+            glass.add(new DrawChessPiece(c), x * 8 + y);
+            glass.revalidate();
+            glass.repaint();
+        }
+
+        private class DrawChessPiece extends JComponent {
+            private int color;
+
+            DrawChessPiece(int color) {
+                this.color = color;
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D graph2 = (Graphics2D) g;
+                graph2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                graph2.setColor(Color.BLUE);
+                // System.out.printf("%f \n",SQUARE_COL);
+                Shape circle = new Ellipse2D.Double(SQUARE_COL / 10 * 1.7, SQUARE_COL / 10 * 1.5, SQUARE_COL / 10 * 8,
+                        SQUARE_COL / 10 * 8);
+                Color c = Color.WHITE;
+                if (this.color == 0)
+                    c = Color.BLACK;
+                else if (this.color == 1)
+                    c = Color.WHITE;
+                else if (this.color == 2)
+                    c = Color.BLUE;
+                graph2.setPaint(new GradientPaint(0, 0, c, 100, 0, c));
+                graph2.fill(circle);
+                // graph2.draw(circle);
+            }
+        }
+
+    }
+
+    public class MainFrame extends ChessBoardGUI {
+        // Methods for creating the whole chessboard
+        public MainFrame createWindow() {
+            this.init();
+            return this;
+        }
+
+        public void init() {
+            // Get the default size of our windows
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            int boardSize = 0;
+            int width = dim.width;
+            int height = dim.height;
+            if (width >= height) {
+                boardSize = height / 2;
+            } else {
+                boardSize = width / 2;
+            }
+
+            // init window
+            setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            setTitle("Amazons");
+
+            // window action listener
+            controlPanel = new ControlPanel();
+            controlPanel.setVisible(false);
+            WindowAdapter wa1 = new WindowAdapter() {
+                @Override
+                public void windowStateChanged(WindowEvent e) {
+                    controlPanel.setState(e.getNewState());
+                }
+            };
+            JFrame currentMainframe = this;
+            WindowAdapter wa2 = new WindowAdapter() {
+                @Override
+                public void windowStateChanged(WindowEvent e) {
+                    currentMainframe.setState(e.getNewState());
+                }
+            };
+            this.addWindowStateListener(wa1);
+            controlPanel.addWindowStateListener(wa2);
+
+            // window movement listener
+            ComponentAdapter ca = new ComponentAdapter() {
+                @Override
+                public void componentMoved(ComponentEvent e) {
+                    controlPanel.setLocationRelativeTo(currentMainframe);
+                    Point p = currentMainframe.getLocation();
+                    controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
+                }
+            };
+            this.addComponentListener(ca);
+
+            // getContentPane().add(squaresPanel, BorderLayout.CENTER);
+            setVisible(false);
+            preferredSize.width = boardSize;
+            preferredSize.height = boardSize;
+            setPreferredSize(preferredSize);
+            setResizable(false);
+            pack();
+            createSquares(this);
+            createGlass(this);
+            for (int i = 0; i < 4; i++) {
+                placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
+                placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
+            }
+            System.out.printf("%d\n",this.getComponentCount());
+            // for (int i = 0; i < 64; i++) {
+            //     this.getComponent(i).addMouseListener(adaptor);
+            // }
+            setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
+            centreWindow(this);
+            pack();
+        }
+
+        public void showChessBoard() {
+            if (playMode == 2) {
+                runAI();
+            }
+            setVisible(true);
+        }
+
+        public void closeChessBoard() {
+            resetBoard();
+            setVisible(false);
+        }
+
+        private void resetBoard() {
+            cb = new ChessBoard();
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    removePiece(i, j);
+                }
+            }
+            for (int i = 0; i < 4; i++) {
+                placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
+                placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
+            }
+        }
+
+        // Methods for moving chesses
+        private MouseAdapter adaptor = new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent me) {
+                JPanel temp = (JPanel) me.getSource();
+                temp.setBackground(new Color(150, 150, 150));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+                JPanel temp = (JPanel) me.getSource();
+                Pair p = new Pair();
+                boolean ct = cb.choosingTarget();
+                boolean co = cb.choosingObstacle();
+                boolean legal = false;
+                if (ct || co) {
+                    for (int i = 0; i < 64; i++) {
+                        if (temp.equals(squaresPanel.getComponent(i))) {
+                            p.x = i / 8;
+                            p.y = i % 8;
+                            break;
+                        }
+                    }
+                }
+                if (ct) {
+                    for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
+                        if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
+                                && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
+                            legal = true;
+                            break;
+                        }
+                    }
+                }
+                if (co) {
+                    for (int i = 0; i < cb.movedChess.freedom(cb); i++) {
+                        if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
+                                && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
+                            legal = true;
+                            break;
+                        }
+                    }
+                }
+                if (legal)
+                    temp.setBackground(new Color(100, 100, 100));
+                else
+                    temp.setBackground(new Color(200, 200, 200));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+                JPanel temp = (JPanel) me.getSource();
+                temp.setBackground(new Color(100, 100, 100));
+                int x = 0, y = 0;
                 for (int i = 0; i < 64; i++) {
                     if (temp.equals(squaresPanel.getComponent(i))) {
-                        p.x = i / 8;
-                        p.y = i % 8;
+                        x = i / 8;
+                        y = i % 8;
                         break;
                     }
                 }
+                reactToMouseClick(x, y);
             }
+            // @Override
+            // public void mouseReleased(MouseEvent me) {
+            // JPanel temp = (JPanel) me.getSource();
+            // temp.setBackground(new Color(200,200,200));
+            // }
+        };
+
+        private void reactToMouseClick(int x, int y) {
+            if (declaredResult == 1) {
+                return;
+            }
+            if(playMode==4) {
+                
+            }
+            if (playMode == 3) {
+                squaresPanel.runAI();
+                int result = cb.declareResult();
+                resultWindow = new ResultWindow();
+                switch (result) {
+                case 0:
+                    resultWindow.createWindow("The black wins!");
+                    break;
+                case 1:
+                    resultWindow.createWindow("The white wins!");
+                    break;
+                case 2:
+                    resultWindow.createWindow("This is a tie");
+                    break;
+                default:
+                    break;
+                }
+                if (result != -1)
+                    declaredResult = 1;
+                return;
+            }
+            Pair p = new Pair(x, y);
+            boolean ct = cb.choosingTarget();
+            boolean co = cb.choosingObstacle();
+            boolean legal = false;
             if (ct) {
                 for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
                     if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
@@ -97,41 +356,44 @@ public class AmazonsGUI extends JFrame {
                     }
                 }
             }
-            if (legal)
-                temp.setBackground(new Color(100, 100, 100));
-            else
-                temp.setBackground(new Color(200, 200, 200));
-        }
 
-        @Override
-        public void mousePressed(MouseEvent me) {
-            JPanel temp = (JPanel) me.getSource();
-            temp.setBackground(new Color(100, 100, 100));
-            int x = 0, y = 0;
-            for (int i = 0; i < 64; i++) {
-                if (temp.equals(squaresPanel.getComponent(i))) {
-                    x = i / 8;
-                    y = i % 8;
-                    break;
+            if (cb.choosingTarget() && cb.hasPiece(x, y) && cb.board[x][y].x == cb.chessToMove.x
+                    && cb.board[x][y].y == cb.chessToMove.y) {
+                cb.pressed[x][y] = false;
+                squaresPanel.displayFreedom(x, y);
+                cb.chessToMove = null;
+            }
+            if (ct) {
+                if (legal) {
+                    for (int i = 0; i < 64; i++) {
+                        squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                    }
+                    squaresPanel.placePiece(x, y, cb.chessToMove.color);
+                    squaresPanel.removePiece(cb.chessToMove.x, cb.chessToMove.y);
+                    cb.moveChess(x, y);
+                    squaresPanel.displayFreedom(x, y);
+                }
+            } else if (co) {
+                if (legal) {
+                    for (int i = 0; i < 64; i++) {
+                        squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                    }
+                    squaresPanel.placePiece(x, y, 2);
+                    cb.putObstacle(x, y);
+                }
+            } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
+                cb.pressed[x][y] = true;
+                squaresPanel.displayFreedom(x, y);
+                cb.setChessToMove();
+            }
+
+            if (co && legal) {
+                if (playMode == 1 || playMode == 2) {
+                    squaresPanel.runAI();
                 }
             }
-            reactToMouseClick(x, y);
-        }
-        // @Override
-        // public void mouseReleased(MouseEvent me) {
-        // JPanel temp = (JPanel) me.getSource();
-        // temp.setBackground(new Color(200,200,200));
-        // }
-    };
 
-    private void reactToMouseClick(int x, int y) {
-        if (declaredResult == 1) {
-            return;
-        }
-        if (playMode == 3) {
-            runAI();
             int result = cb.declareResult();
-            resultWindow = new ResultWindow();
             switch (result) {
             case 0:
                 resultWindow.createWindow("The black wins!");
@@ -147,298 +409,103 @@ public class AmazonsGUI extends JFrame {
             }
             if (result != -1)
                 declaredResult = 1;
-            return;
         }
-        Pair p = new Pair(x, y);
-        boolean ct = cb.choosingTarget();
-        boolean co = cb.choosingObstacle();
-        boolean legal = false;
-        if (ct) {
-            for (int i = 0; i < cb.chessToMove.freedom(cb); i++) {
-                if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
-                        && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
-                    legal = true;
-                    break;
+
+        private void removePiece(int x, int y) {
+            JPanel glasses = new JPanel();
+            glasses.setVisible(false);
+            glass.remove(x * 8 + y);
+            glass.add(glasses, x * 8 + y);
+            glass.revalidate();
+            glass.repaint();
+        }
+
+        private void runAI() {
+            int colorForTurn = 0;
+            Move move = rai.nextMove(cb);
+            cb.moveStep(move);
+            if (cb.colorForTurn() == 0)
+                colorForTurn = 1;
+            else
+                colorForTurn = 0;
+            removePiece(move.src_x, move.src_y);
+            placePiece(move.tar_x, move.tar_y, colorForTurn);
+            placePiece(move.obs_x, move.obs_y, 2);
+        }
+
+        private void undo() {
+            if (cb.history.size() == 0)
+                return;
+            Move move = cb.undo();
+            removePiece(move.tar_x, move.tar_y);
+            removePiece(move.obs_x, move.obs_y);
+            placePiece(move.src_x, move.src_y, cb.colorForTurn());
+        }
+
+        private void displayFreedom(int x, int y) {
+            // change the color on the base pane (the chessboard) to display available
+            // positions for chesspiece on (x, y)
+            // basically you can use squaresPanel
+            // ((JPanel)squaresPanel.getComponent(0)).setBackground(new Color(0, 0, 1));
+            List<Pair> positions = cb.board[x][y].possiblePositions(cb);
+            int c = 100;
+            if (cb.pressed[x][y])
+                c = 100;
+            else
+                c = 200;
+            for (int i = 0; i < cb.board[x][y].freedom(cb); i++) {
+                ((JPanel) squaresPanel.getComponent(positions.get(i).x * 8 + positions.get(i).y))
+                        .setBackground(new Color(c, c, c));
+            }
+        }
+    }
+
+    private class TargetBoard extends ChessBoardGUI {
+        public TargetBoard createWindow() {
+            this.init();
+            return this;
+        }
+
+        public void init() {
+            setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+            setTitle("Target Board");
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            int boardSize = 0;
+            int width = dim.width;
+            int height = dim.height;
+            if (width >= height) {
+                boardSize = height / 2;
+            } else {
+                boardSize = width / 2;
+            }
+            preferredSize.height=boardSize;
+            preferredSize.width=boardSize;
+            setPreferredSize(preferredSize);
+            setSize(boardSize, boardSize);
+            setResizable(false);
+            setLocation(squaresPanel.getLocation().x - squaresPanel.getSize().width / 2,
+                    squaresPanel.getLocation().y);
+            // getContentPane().add(squaresPanel, BorderLayout.CENTER);
+            setVisible(true);
+
+            createSquares(this);
+            createGlass(this);
+            drawChessBoard();
+            pack();
+        }
+
+        private void drawChessBoard() {
+            for (int i = 0; i < level; i++) {
+                Move move = this.rai.nextMove(this.cb);
+                this.cb.moveStep(move);
+            }
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (this.cb.board[i][j] != null) {
+                        placePiece(i, j, this.cb.board[i][j].color);
+                    }
                 }
             }
-        }
-        if (co) {
-            for (int i = 0; i < cb.movedChess.freedom(cb); i++) {
-                if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
-                        && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
-                    legal = true;
-                    break;
-                }
-            }
-        }
-
-        if (cb.choosingTarget() && cb.hasPiece(x, y) && cb.board[x][y].x == cb.chessToMove.x
-                && cb.board[x][y].y == cb.chessToMove.y) {
-            cb.pressed[x][y] = false;
-            displayFreedom(x, y);
-            cb.chessToMove = null;
-        }
-        if (ct) {
-            if (legal) {
-                for (int i = 0; i < 64; i++) {
-                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
-                }
-                placePiece(x, y, cb.chessToMove.color);
-                removePiece(cb.chessToMove.x, cb.chessToMove.y);
-                cb.moveChess(x, y);
-                displayFreedom(x, y);
-            }
-        } else if (co) {
-            if (legal) {
-                for (int i = 0; i < 64; i++) {
-                    squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
-                }
-                placePiece(x, y, 2);
-                cb.putObstacle(x, y);
-            }
-        } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
-            cb.pressed[x][y] = true;
-            displayFreedom(x, y);
-            cb.setChessToMove();
-        }
-
-        if (co && legal) {
-            if (playMode == 1 || playMode == 2) {
-                runAI();
-            }
-        }
-
-        int result = cb.declareResult();
-        switch (result) {
-        case 0:
-            resultWindow.createWindow("The black wins!");
-            break;
-        case 1:
-            resultWindow.createWindow("The white wins!");
-            break;
-        case 2:
-            resultWindow.createWindow("This is a tie");
-            break;
-        default:
-            break;
-        }
-        if (result != -1)
-            declaredResult = 1;
-    }
-
-    private static JLabel resultLabel;
-
-    public void initMainFrame() {
-        // Get the default size of our windows
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        int boardSize = 0;
-        int width = dim.width;
-        int height = dim.height;
-        if (width >= height) {
-            boardSize = height / 2;
-        } else {
-            boardSize = width / 2;
-        }
-
-        // init window
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Amazons");
-
-        // window action listener
-        controlPanel = new ControlPanel();
-        controlPanel.setVisible(false);
-        WindowAdapter wa1 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                controlPanel.setState(e.getNewState());
-            }
-        };
-        JFrame currentMainframe = this;
-        WindowAdapter wa2 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                currentMainframe.setState(e.getNewState());
-            }
-        };
-        this.addWindowStateListener(wa1);
-        controlPanel.addWindowStateListener(wa2);
-
-        // window movement listener
-        ComponentAdapter ca = new ComponentAdapter() {
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                controlPanel.setLocationRelativeTo(currentMainframe);
-                Point p = currentMainframe.getLocation();
-                controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
-            }
-        };
-        this.addComponentListener(ca);
-
-        getContentPane().add(squaresPanel, BorderLayout.CENTER);
-        setVisible(false);
-        preferredSize.width = boardSize;
-        preferredSize.height = boardSize;
-        setPreferredSize(preferredSize);
-        setResizable(false);
-        createSquares();
-        createGlass();
-        for (int i = 0; i < 4; i++) {
-            placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
-            placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
-        }
-        setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
-        centreWindow(this);
-        pack();
-    }
-
-    public void showChessBoard() {
-        if (playMode == 2) {
-            runAI();
-        }
-        setVisible(true);
-    }
-
-    public void closeChessBoard() {
-        resetBoard();
-        setVisible(false);
-    }
-
-    public static void centreWindow(Window frame) {
-        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
-        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
-        frame.setLocation(x, y);
-    }
-
-    private void resetBoard() {
-        cb = new ChessBoard();
-        for (int i = 0; i < NUM_OF_ROWS; i++) {
-            for (int j = 0; j < NUM_OF_COLS; j++) {
-                removePiece(i, j);
-            }
-        }
-        for (int i = 0; i < 4; i++) {
-            placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
-            placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
-        }
-    }
-
-    private void createSquares() {
-        squaresPanel.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
-        for (int i = 0; i < NUM_OF_ROWS; i++) {
-            for (int j = 0; j < NUM_OF_COLS; j++) {
-                final int a = i, b = j;
-                JPanel square = new JPanel();
-                square.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
-                square.setForeground(new Color(0, 0, 0));
-                square.setBackground(new Color(200, 200, 200));
-                // square.add(new JLabel(String.format("(%d, %d)", i,j)));
-                // square.add(new DrawChessPiece());
-                // squaresPanel.add(new DrawChessPiece());
-                square.addMouseListener(adaptor);
-                squaresPanel.add(square);
-                this.pack();
-                // SQUARE_ROW = square.getSize().width;
-                // We don't know why the width changes here.
-                SQUARE_COL = square.getSize().height;
-            }
-        }
-    }
-
-    private void createGlass() {
-        // setGlassPane(glass);
-        glass.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
-        glass.setVisible(true);
-        for (int i = 0; i < NUM_OF_ROWS; i++) {
-            for (int j = 0; j < NUM_OF_COLS; j++) {
-                JPanel glasses = new JPanel();
-                glasses.setVisible(false);
-                glass.add(glasses);
-            }
-        }
-    }
-
-    private void placePiece(int x, int y, int c) {
-        glass.remove(x * 8 + y);
-        glass.add(new DrawChessPiece(c), x * 8 + y);
-        glass.revalidate();
-        glass.repaint();
-    }
-
-    private void removePiece(int x, int y) {
-        JPanel glasses = new JPanel();
-        glasses.setVisible(false);
-        glass.remove(x * 8 + y);
-        glass.add(glasses, x * 8 + y);
-        glass.revalidate();
-        glass.repaint();
-    }
-
-    private void runAI() {
-        int colorForTurn = 0;
-        Move move = rai.nextMove(cb);
-        cb.moveStep(move);
-        if (cb.colorForTurn() == 0)
-            colorForTurn = 1;
-        else
-            colorForTurn = 0;
-        removePiece(move.src_x, move.src_y);
-        placePiece(move.tar_x, move.tar_y, colorForTurn);
-        placePiece(move.obs_x, move.obs_y, 2);
-    }
-
-    private void undo() {
-        if (cb.history.size() == 0)
-            return;
-        Move move = cb.undo();
-        removePiece(move.tar_x, move.tar_y);
-        removePiece(move.obs_x, move.obs_y);
-        placePiece(move.src_x, move.src_y, cb.colorForTurn());
-    }
-
-    private class DrawChessPiece extends JComponent {
-        private int color;
-
-        DrawChessPiece(int color) {
-            this.color = color;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D graph2 = (Graphics2D) g;
-            graph2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graph2.setColor(Color.BLUE);
-            // System.out.printf("%f \n",SQUARE_COL);
-            Shape circle = new Ellipse2D.Double(SQUARE_COL / 10 * 1.7, SQUARE_COL / 10 * 1.5, SQUARE_COL / 10 * 8,
-                    SQUARE_COL / 10 * 8);
-            Color c = Color.WHITE;
-            if (this.color == 0)
-                c = Color.BLACK;
-            else if (this.color == 1)
-                c = Color.WHITE;
-            else if (this.color == 2)
-                c = Color.BLUE;
-            graph2.setPaint(new GradientPaint(0, 0, c, 100, 0, c));
-            graph2.fill(circle);
-            // graph2.draw(circle);
-        }
-    }
-
-    private void displayFreedom(int x, int y) {
-        // change the color on the base pane (the chessboard) to display available
-        // positions for chesspiece on (x, y)
-        // basically you can use squaresPanel
-        // ((JPanel)squaresPanel.getComponent(0)).setBackground(new Color(0, 0, 1));
-        List<Pair> positions = cb.board[x][y].possiblePositions(cb);
-        int c = 100;
-        if (cb.pressed[x][y])
-            c = 100;
-        else
-            c = 200;
-        for (int i = 0; i < cb.board[x][y].freedom(cb); i++) {
-            ((JPanel) squaresPanel.getComponent(positions.get(i).x * 8 + positions.get(i).y))
-                    .setBackground(new Color(c, c, c));
         }
     }
 
@@ -455,7 +522,7 @@ public class AmazonsGUI extends JFrame {
             this.setSize(200, 400);
             centreWindow(this);
             // setUndecorated(true);
-            setLayout(new GridLayout(4, 1));
+            setLayout(new GridLayout(5, 1));
             setVisible(true);
             int x = getContentPane().getLocation().x;
             int y = getContentPane().getLocation().y;
@@ -480,48 +547,63 @@ public class AmazonsGUI extends JFrame {
             button4.setActionCommand("4");
             button4.addActionListener(this);
 
-            JButton button5 = new JButton();
-            button5.setVisible(false);
+            JButton button5 = new JButton("Play a puzzle solving game");
+            button5.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
+            button5.setActionCommand("5");
+            button5.addActionListener(this);
 
             getContentPane().add(button1);
             getContentPane().add(button2);
             getContentPane().add(button3);
             getContentPane().add(button4);
+            getContentPane().add(button5);
             button1.repaint();
             button2.repaint();
             button3.repaint();
             button4.repaint();
+            button5.repaint();
             pack();
         }
 
         public void actionPerformed(ActionEvent event) {
+            if (initialized == 0) {
+                initialized = 1;
+                squaresPanel = new MainFrame();
+                squaresPanel.init();
+            }
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "1":
-                showChessBoard();
+                squaresPanel.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
                 break;
             case "2":
                 playMode = 1;
-                showChessBoard();
+                squaresPanel.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
                 break;
             case "3":
                 playMode = 2;
-                showChessBoard();
+                squaresPanel.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
                 break;
             case "4":
                 playMode = 3;
-                showChessBoard();
+                squaresPanel.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
+                dispose();
+                break;
+            case "5":
+                playMode = 4;
+                levels = new Levels();
+                levels.createWindow();
                 dispose();
                 break;
             default:
@@ -581,7 +663,7 @@ public class AmazonsGUI extends JFrame {
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "RESET":
-                resetBoard();
+                squaresPanel.resetBoard();
                 declaredResult = 0;
                 if (resultWindow != null) {
                     resultWindow.closeWindow();
@@ -589,16 +671,16 @@ public class AmazonsGUI extends JFrame {
                 break;
             case "BACK":
                 new StartingScreen().createWindow();
-                closeChessBoard();
+                squaresPanel.closeChessBoard();
                 dispose();
                 break;
             case "UNDO":
-                undo();
+                squaresPanel.undo();
                 if (playMode == 1 || playMode == 2) {
-                    undo();
+                    squaresPanel.undo();
                 }
-                if (playMode == 2 && cb.history.size() == 0) {
-                    runAI();
+                if (playMode == 2 && squaresPanel.cb.history.size() == 0) {
+                    squaresPanel.runAI();
                 }
                 break;
             default:
@@ -625,6 +707,45 @@ public class AmazonsGUI extends JFrame {
         }
 
         public void closeWindow() {
+            dispose();
+        }
+    }
+
+    public class Levels extends JFrame implements ActionListener {
+        public Levels createWindow() {
+            this.init();
+            return this;
+        }
+
+        private void init() {
+            setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            setTitle("Choose level");
+            setPreferredSize(new Dimension(320, 400));
+            this.setSize(320, 400);
+            centreWindow(this);
+            setVisible(true);
+            setLayout(new GridLayout(5, 4));
+            JButton[] buttons = new JButton[20];
+            for (int i = 0; i < 20; i++) {
+                buttons[i] = new JButton(Integer.toString(i + 1));
+                buttons[i].setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
+                buttons[i].setActionCommand(Integer.toString(i + 4));
+                buttons[i].addActionListener(this);
+                getContentPane().add(buttons[i]);
+                buttons[i].repaint();
+            }
+            pack();
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            String cmd = event.getActionCommand();
+            level = Integer.parseInt(cmd);
+            squaresPanel.showChessBoard();
+            controlPanel.createWindow();
+            squaresPanel.setLocation(squaresPanel.getLocation().x + squaresPanel.getSize().width / 2,
+                    squaresPanel.getLocation().y);
+            targetBoard=new TargetBoard();
+            targetBoard.createWindow();
             dispose();
         }
     }
