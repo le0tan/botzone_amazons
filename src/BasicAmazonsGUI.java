@@ -40,16 +40,15 @@ import java.util.List;
  */
 public class BasicAmazonsGUI extends JFrame {
 
-    private JPanel squaresPanel = new JPanel();
-    // private static JPanel glass=new JPanel();
-    private JPanel glass = (JPanel) getGlassPane();
-    private static Dimension preferredSize = new Dimension();
-    private static int NUM_OF_ROWS = 8;
-    private static int NUM_OF_COLS = 8;
-    // private static int SQUARE_ROW;
-    private static int SQUARE_COL;
-    private boolean isTarget = false;
-    private ChessBoard cb = new ChessBoard();
+    protected JPanel squaresPanel = new JPanel();
+    // protected static JPanel glass=new JPanel();
+    protected JPanel glass = (JPanel) getGlassPane();
+    protected static Dimension preferredSize = new Dimension();
+    protected static int NUM_OF_ROWS = 8;
+    protected static int NUM_OF_COLS = 8;
+    // protected static int SQUARE_ROW;
+    protected static int SQUARE_COL;
+    protected ChessBoard cb = new ChessBoard();
 
     public void initMainFrame() {
         // Get the default size of our windows
@@ -76,15 +75,26 @@ public class BasicAmazonsGUI extends JFrame {
         createSquares();
         createGlass();
 
-        // add pieces here!!!!!!!!!!!
-        for (int i = 0; i < 4; i++) {
-            placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
-            placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
-        }
+        // // add pieces here!!!!!!!!!!!
+        // for (int i = 0; i < 4; i++) {
+        //     placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
+        //     placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
+        // }
 
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
         centreWindow(this);
         pack();
+    }
+
+    public void initTargetBoard(ChessBoard targetBoard) {
+        // add pieces here!!!!!!!!!!!
+        for(int i=0;i<8;i++) {
+            for(int j=0;j<8;j++) {
+                if(targetBoard.board[i][j]!=null) {
+                    placePiece(i, j, targetBoard.board[i][j].color);
+                }
+            }
+        }
     }
 
     public void showChessBoard() {
@@ -103,7 +113,7 @@ public class BasicAmazonsGUI extends JFrame {
         frame.setLocation(x, y);
     }
 
-    private void resetBoard() {
+    protected void resetBoard() {
         cb = new ChessBoard();
         for (int i = 0; i < NUM_OF_ROWS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
@@ -116,7 +126,7 @@ public class BasicAmazonsGUI extends JFrame {
         }
     }
 
-    private void createSquares() {
+    protected void createSquares() {
         squaresPanel.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
         for (int i = 0; i < NUM_OF_ROWS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
@@ -125,7 +135,6 @@ public class BasicAmazonsGUI extends JFrame {
                 square.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
                 square.setForeground(new Color(0, 0, 0));
                 square.setBackground(new Color(200, 200, 200));
-                // if(!isTarget) square.addMouseListener(adaptor);
                 squaresPanel.add(square);
                 this.pack();
                 // We don't know why the width changes here.
@@ -134,7 +143,7 @@ public class BasicAmazonsGUI extends JFrame {
         }
     }
 
-    private void createGlass() {
+    protected void createGlass() {
         // setGlassPane(glass);
         glass.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
         glass.setVisible(true);
@@ -147,14 +156,14 @@ public class BasicAmazonsGUI extends JFrame {
         }
     }
 
-    private void placePiece(int x, int y, int c) {
+    protected void placePiece(int x, int y, int c) {
         glass.remove(x * 8 + y);
         glass.add(new DrawChessPiece(c), x * 8 + y);
         glass.revalidate();
         glass.repaint();
     }
 
-    private void removePiece(int x, int y) {
+    protected void removePiece(int x, int y) {
         JPanel glasses = new JPanel();
         glasses.setVisible(false);
         glass.remove(x * 8 + y);
@@ -163,8 +172,8 @@ public class BasicAmazonsGUI extends JFrame {
         glass.repaint();
     }
 
-    private class DrawChessPiece extends JComponent {
-        private int color;
+    protected class DrawChessPiece extends JComponent {
+        protected int color;
 
         DrawChessPiece(int color) {
             this.color = color;
@@ -192,7 +201,7 @@ public class BasicAmazonsGUI extends JFrame {
         }
     }
 
-    private void displayFreedom(int x, int y) {
+    protected void displayFreedom(int x, int y) {
         // change the color on the base pane (the chessboard) to display available
         // positions for chesspiece on (x, y)
         // basically you can use squaresPanel

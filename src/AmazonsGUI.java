@@ -38,23 +38,12 @@ import java.util.List;
 /**
  * AmazonsGUI
  */
-public class AmazonsGUI extends JFrame {
+public class AmazonsGUI extends BasicAmazonsGUI {
 
-    private JPanel squaresPanel = new JPanel();
-    // private static JPanel glass=new JPanel();
-    private JPanel glass = (JPanel) getGlassPane();
-    private static Dimension preferredSize = new Dimension();
-    private static int NUM_OF_ROWS = 8;
-    private static int NUM_OF_COLS = 8;
-    // private static int SQUARE_ROW;
-    private static int SQUARE_COL;
     private int playMode = 0;
     private int declaredResult = 0;
     private ResultWindow resultWindow;
     private ControlPanel controlPanel;
-    private boolean isTarget = false;
-
-    private static ChessBoard cb = new ChessBoard();
     RandomAI rai = new RandomAI();
 
     private MouseAdapter adaptor = new MouseAdapter() {
@@ -292,80 +281,6 @@ public class AmazonsGUI extends JFrame {
         pack();
     }
 
-    public void initTargetFrame(ChessBoard targetBoard) {
-        ChessBoard target = targetBoard.clone();
-
-        isTarget = true;
-
-        // Get the default size of our windows
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        int boardSize = 0;
-        int width = dim.width;
-        int height = dim.height;
-        if (width >= height) {
-            boardSize = height / 2;
-        } else {
-            boardSize = width / 2;
-        }
-
-        // init window
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Target Board");
-
-        // window action listener
-        controlPanel = new ControlPanel();
-        controlPanel.setVisible(false);
-        WindowAdapter wa1 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                controlPanel.setState(e.getNewState());
-            }
-        };
-        JFrame currentMainframe = this;
-        WindowAdapter wa2 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                currentMainframe.setState(e.getNewState());
-            }
-        };
-        this.addWindowStateListener(wa1);
-        controlPanel.addWindowStateListener(wa2);
-
-        // window movement listener
-        ComponentAdapter ca = new ComponentAdapter() {
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                controlPanel.setLocationRelativeTo(currentMainframe);
-                Point p = currentMainframe.getLocation();
-                controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
-            }
-        };
-        this.addComponentListener(ca);
-
-        
-        getContentPane().add(squaresPanel, BorderLayout.CENTER);
-        setVisible(true);
-        preferredSize.width = boardSize;
-        preferredSize.height = boardSize;
-        setPreferredSize(preferredSize);
-        setResizable(false);
-        createSquares();
-        createGlass();
-        
-        // add chesspiece components according to target board
-        for(int i=0;i<8;i++) {
-            for(int j=0;j<8;j++) {
-                if(target.board[i][j] != null) {
-                    placePiece(i, j, target.board[i][j].color);
-                }
-            }
-        }
-        
-        setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
-        centreWindow(this);
-        pack();
-    }
-
     public void showChessBoard() {
         if (playMode == 2) {
             runAI();
@@ -385,20 +300,8 @@ public class AmazonsGUI extends JFrame {
         frame.setLocation(x, y);
     }
 
-    private void resetBoard() {
-        cb = new ChessBoard();
-        for (int i = 0; i < NUM_OF_ROWS; i++) {
-            for (int j = 0; j < NUM_OF_COLS; j++) {
-                removePiece(i, j);
-            }
-        }
-        for (int i = 0; i < 4; i++) {
-            placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
-            placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
-        }
-    }
-
-    private void createSquares() {
+    @Override
+    protected void createSquares() {
         squaresPanel.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
         for (int i = 0; i < NUM_OF_ROWS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
@@ -407,46 +310,13 @@ public class AmazonsGUI extends JFrame {
                 square.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
                 square.setForeground(new Color(0, 0, 0));
                 square.setBackground(new Color(200, 200, 200));
-                // square.add(new JLabel(String.format("(%d, %d)", i,j)));
-                // square.add(new DrawChessPiece());
-                // squaresPanel.add(new DrawChessPiece());
-                if(!isTarget) square.addMouseListener(adaptor);
+                square.addMouseListener(adaptor);
                 squaresPanel.add(square);
                 this.pack();
-                // SQUARE_ROW = square.getSize().width;
                 // We don't know why the width changes here.
                 SQUARE_COL = square.getSize().height;
             }
         }
-    }
-
-    private void createGlass() {
-        // setGlassPane(glass);
-        glass.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
-        glass.setVisible(true);
-        for (int i = 0; i < NUM_OF_ROWS; i++) {
-            for (int j = 0; j < NUM_OF_COLS; j++) {
-                JPanel glasses = new JPanel();
-                glasses.setVisible(false);
-                glass.add(glasses);
-            }
-        }
-    }
-
-    private void placePiece(int x, int y, int c) {
-        glass.remove(x * 8 + y);
-        glass.add(new DrawChessPiece(c), x * 8 + y);
-        glass.revalidate();
-        glass.repaint();
-    }
-
-    private void removePiece(int x, int y) {
-        JPanel glasses = new JPanel();
-        glasses.setVisible(false);
-        glass.remove(x * 8 + y);
-        glass.add(glasses, x * 8 + y);
-        glass.revalidate();
-        glass.repaint();
     }
 
     private void runAI() {
@@ -469,52 +339,6 @@ public class AmazonsGUI extends JFrame {
         removePiece(move.tar_x, move.tar_y);
         removePiece(move.obs_x, move.obs_y);
         placePiece(move.src_x, move.src_y, cb.colorForTurn());
-    }
-
-    private class DrawChessPiece extends JComponent {
-        private int color;
-
-        DrawChessPiece(int color) {
-            this.color = color;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D graph2 = (Graphics2D) g;
-            graph2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graph2.setColor(Color.BLUE);
-            // System.out.printf("%f \n",SQUARE_COL);
-            Shape circle = new Ellipse2D.Double(SQUARE_COL / 10 * 1.7, SQUARE_COL / 10 * 1.5, SQUARE_COL / 10 * 8,
-                    SQUARE_COL / 10 * 8);
-            Color c = Color.WHITE;
-            if (this.color == 0)
-                c = Color.BLACK;
-            else if (this.color == 1)
-                c = Color.WHITE;
-            else if (this.color == 2)
-                c = Color.BLUE;
-            graph2.setPaint(new GradientPaint(0, 0, c, 100, 0, c));
-            graph2.fill(circle);
-            // graph2.draw(circle);
-        }
-    }
-
-    private void displayFreedom(int x, int y) {
-        // change the color on the base pane (the chessboard) to display available
-        // positions for chesspiece on (x, y)
-        // basically you can use squaresPanel
-        // ((JPanel)squaresPanel.getComponent(0)).setBackground(new Color(0, 0, 1));
-        List<Pair> positions = cb.board[x][y].possiblePositions(cb);
-        int c = 100;
-        if (cb.pressed[x][y])
-            c = 100;
-        else
-            c = 200;
-        for (int i = 0; i < cb.board[x][y].freedom(cb); i++) {
-            ((JPanel) squaresPanel.getComponent(positions.get(i).x * 8 + positions.get(i).y))
-                    .setBackground(new Color(c, c, c));
-        }
     }
 
     public class StartingScreen extends JFrame implements ActionListener {
