@@ -498,6 +498,7 @@ public class AmazonsGUI extends JFrame {
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "1":
+                playMode = 0;
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
