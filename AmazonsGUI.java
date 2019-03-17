@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * AmazonsGUI
  */
-public class AmazonsGUI extends JFrame {
+public class AmazonsGUI {
 
     private static int SQUARE_COL;
     private static Dimension preferredSize = new Dimension();
@@ -50,7 +50,7 @@ public class AmazonsGUI extends JFrame {
 
     private static JLabel resultLabel;
     private static ResultWindow resultWindow;
-    public static MainFrame squaresPanel;
+    public static MainBoard mainBoard;
     private static ControlPanel controlPanel;
     private static Levels levels;
     private static TargetBoard targetBoard;
@@ -66,28 +66,30 @@ public class AmazonsGUI extends JFrame {
     public abstract class ChessBoardGUI extends JFrame {
         protected ChessBoard cb = new ChessBoard();
         RandomAI rai = new RandomAI();
+        
         protected JPanel glass = (JPanel) getGlassPane();
 
         public abstract void init();
 
-        protected void createSquares(JFrame frame) {
-            frame.setLayout(new GridLayout(8, 8));
+        public void createSquares(JPanel panel, MouseAdapter adaptor) {
+            panel.setLayout(new GridLayout(8, 8));
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     JPanel square = new JPanel();
+                    square.setVisible(true);
                     square.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
                     square.setForeground(new Color(0, 0, 0));
                     square.setBackground(new Color(200, 200, 200));
-                    // square.addMouseListener(adaptor);
-                    frame.add(square);
-                    frame.pack();
+                    if(adaptor!=null)square.addMouseListener(adaptor);
+                    panel.add(square);
                     SQUARE_COL = square.getSize().height;
                 }
             }
+            pack();
         }
 
-        protected void createGlass(JFrame frame) {
-            // setGlassPane(glass);
+        protected void createGlass() {
+            //this.setGlassPane(glass);
             glass.setLayout(new GridLayout(8, 8));
             glass.setVisible(true);
             for (int i = 0; i < 8; i++) {
@@ -97,6 +99,7 @@ public class AmazonsGUI extends JFrame {
                     glass.add(glasses);
                 }
             }
+            pack();
         }
 
         protected void placePiece(int x, int y, int c) {
@@ -137,14 +140,18 @@ public class AmazonsGUI extends JFrame {
 
     }
 
-    public class MainFrame extends ChessBoardGUI {
+    public class MainBoard extends ChessBoardGUI {
         // Methods for creating the whole chessboard
-        public MainFrame createWindow() {
+        private JPanel squaresPanel=new JPanel();
+
+        public MainBoard createWindow() {
             this.init();
             return this;
         }
 
         public void init() {
+            //this.add(squaresPanel);
+            //this.add(glass);
             // Get the default size of our windows
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
             int boardSize = 0;
@@ -191,22 +198,21 @@ public class AmazonsGUI extends JFrame {
             this.addComponentListener(ca);
 
             // getContentPane().add(squaresPanel, BorderLayout.CENTER);
-            setVisible(false);
+            setVisible(true);
             preferredSize.width = boardSize;
             preferredSize.height = boardSize;
             setPreferredSize(preferredSize);
             setResizable(false);
-            pack();
-            createSquares(this);
-            createGlass(this);
+            createSquares(this.squaresPanel,adaptor);
+            createGlass();
+            this.add(squaresPanel);
+            this.setGlassPane(glass);
+            //System.out.printf("%d\n",this.getComponentCount());
+            //this.add(glass);
             for (int i = 0; i < 4; i++) {
                 placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
                 placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
             }
-            System.out.printf("%d\n",this.getComponentCount());
-            // for (int i = 0; i < 64; i++) {
-            //     this.getComponent(i).addMouseListener(adaptor);
-            // }
             setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
             centreWindow(this);
             pack();
@@ -238,6 +244,7 @@ public class AmazonsGUI extends JFrame {
         }
 
         // Methods for moving chesses
+        //JFrame frame=this;
         private MouseAdapter adaptor = new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent me) {
@@ -254,7 +261,7 @@ public class AmazonsGUI extends JFrame {
                 boolean legal = false;
                 if (ct || co) {
                     for (int i = 0; i < 64; i++) {
-                        if (temp.equals(squaresPanel.getComponent(i))) {
+                        if (temp.equals(glass.getComponent(i))) {
                             p.x = i / 8;
                             p.y = i % 8;
                             break;
@@ -291,9 +298,10 @@ public class AmazonsGUI extends JFrame {
                 temp.setBackground(new Color(100, 100, 100));
                 int x = 0, y = 0;
                 for (int i = 0; i < 64; i++) {
-                    if (temp.equals(squaresPanel.getComponent(i))) {
+                    if (temp.equals(glass.getComponent(i))) {
                         x = i / 8;
                         y = i % 8;
+                        System.out.printf("%d %d\n",x,y);
                         break;
                     }
                 }
@@ -314,7 +322,7 @@ public class AmazonsGUI extends JFrame {
                 
             }
             if (playMode == 3) {
-                squaresPanel.runAI();
+                mainBoard.runAI();
                 int result = cb.declareResult();
                 resultWindow = new ResultWindow();
                 switch (result) {
@@ -360,36 +368,36 @@ public class AmazonsGUI extends JFrame {
             if (cb.choosingTarget() && cb.hasPiece(x, y) && cb.board[x][y].x == cb.chessToMove.x
                     && cb.board[x][y].y == cb.chessToMove.y) {
                 cb.pressed[x][y] = false;
-                squaresPanel.displayFreedom(x, y);
+                mainBoard.displayFreedom(x, y);
                 cb.chessToMove = null;
             }
             if (ct) {
                 if (legal) {
                     for (int i = 0; i < 64; i++) {
-                        squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                        mainBoard.getComponent(i).setBackground(new Color(200, 200, 200));
                     }
-                    squaresPanel.placePiece(x, y, cb.chessToMove.color);
-                    squaresPanel.removePiece(cb.chessToMove.x, cb.chessToMove.y);
+                    mainBoard.placePiece(x, y, cb.chessToMove.color);
+                    mainBoard.removePiece(cb.chessToMove.x, cb.chessToMove.y);
                     cb.moveChess(x, y);
-                    squaresPanel.displayFreedom(x, y);
+                    mainBoard.displayFreedom(x, y);
                 }
             } else if (co) {
                 if (legal) {
                     for (int i = 0; i < 64; i++) {
-                        squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+                        mainBoard.getComponent(i).setBackground(new Color(200, 200, 200));
                     }
-                    squaresPanel.placePiece(x, y, 2);
+                    mainBoard.placePiece(x, y, 2);
                     cb.putObstacle(x, y);
                 }
             } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
                 cb.pressed[x][y] = true;
-                squaresPanel.displayFreedom(x, y);
+                mainBoard.displayFreedom(x, y);
                 cb.setChessToMove();
             }
 
             if (co && legal) {
                 if (playMode == 1 || playMode == 2) {
-                    squaresPanel.runAI();
+                    mainBoard.runAI();
                 }
             }
 
@@ -446,7 +454,7 @@ public class AmazonsGUI extends JFrame {
             // change the color on the base pane (the chessboard) to display available
             // positions for chesspiece on (x, y)
             // basically you can use squaresPanel
-            // ((JPanel)squaresPanel.getComponent(0)).setBackground(new Color(0, 0, 1));
+            // ((JPanel)mainBoard.getComponent(0)).setBackground(new Color(0, 0, 1));
             List<Pair> positions = cb.board[x][y].possiblePositions(cb);
             int c = 100;
             if (cb.pressed[x][y])
@@ -454,19 +462,22 @@ public class AmazonsGUI extends JFrame {
             else
                 c = 200;
             for (int i = 0; i < cb.board[x][y].freedom(cb); i++) {
-                ((JPanel) squaresPanel.getComponent(positions.get(i).x * 8 + positions.get(i).y))
+                ((JPanel) mainBoard.getComponent(positions.get(i).x * 8 + positions.get(i).y))
                         .setBackground(new Color(c, c, c));
             }
         }
     }
 
     private class TargetBoard extends ChessBoardGUI {
+        private JPanel squaresPanel=new JPanel();
+
         public TargetBoard createWindow() {
             this.init();
             return this;
         }
 
         public void init() {
+            //this.add(squaresPanel);
             setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
             setTitle("Target Board");
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -483,13 +494,13 @@ public class AmazonsGUI extends JFrame {
             setPreferredSize(preferredSize);
             setSize(boardSize, boardSize);
             setResizable(false);
-            setLocation(squaresPanel.getLocation().x - squaresPanel.getSize().width / 2,
-                    squaresPanel.getLocation().y);
+            setLocation(mainBoard.getLocation().x - mainBoard.getSize().width / 2,
+                    mainBoard.getLocation().y);
             // getContentPane().add(squaresPanel, BorderLayout.CENTER);
             setVisible(true);
 
-            createSquares(this);
-            createGlass(this);
+            createSquares(this.squaresPanel,null);
+            createGlass();
             drawChessBoard();
             pack();
         }
@@ -568,34 +579,34 @@ public class AmazonsGUI extends JFrame {
         public void actionPerformed(ActionEvent event) {
             if (initialized == 0) {
                 initialized = 1;
-                squaresPanel = new MainFrame();
-                squaresPanel.init();
+                mainBoard = new MainBoard();
+                mainBoard.init();
             }
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "1":
-                squaresPanel.showChessBoard();
+                mainBoard.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
                 break;
             case "2":
                 playMode = 1;
-                squaresPanel.showChessBoard();
+                mainBoard.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
                 break;
             case "3":
                 playMode = 2;
-                squaresPanel.showChessBoard();
+                mainBoard.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
                 break;
             case "4":
                 playMode = 3;
-                squaresPanel.showChessBoard();
+                mainBoard.showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
                 dispose();
@@ -663,7 +674,7 @@ public class AmazonsGUI extends JFrame {
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "RESET":
-                squaresPanel.resetBoard();
+                mainBoard.resetBoard();
                 declaredResult = 0;
                 if (resultWindow != null) {
                     resultWindow.closeWindow();
@@ -671,16 +682,16 @@ public class AmazonsGUI extends JFrame {
                 break;
             case "BACK":
                 new StartingScreen().createWindow();
-                squaresPanel.closeChessBoard();
+                mainBoard.closeChessBoard();
                 dispose();
                 break;
             case "UNDO":
-                squaresPanel.undo();
+                mainBoard.undo();
                 if (playMode == 1 || playMode == 2) {
-                    squaresPanel.undo();
+                    mainBoard.undo();
                 }
-                if (playMode == 2 && squaresPanel.cb.history.size() == 0) {
-                    squaresPanel.runAI();
+                if (playMode == 2 && mainBoard.cb.history.size() == 0) {
+                    mainBoard.runAI();
                 }
                 break;
             default:
@@ -740,10 +751,10 @@ public class AmazonsGUI extends JFrame {
         public void actionPerformed(ActionEvent event) {
             String cmd = event.getActionCommand();
             level = Integer.parseInt(cmd);
-            squaresPanel.showChessBoard();
+            mainBoard.showChessBoard();
             controlPanel.createWindow();
-            squaresPanel.setLocation(squaresPanel.getLocation().x + squaresPanel.getSize().width / 2,
-                    squaresPanel.getLocation().y);
+            mainBoard.setLocation(mainBoard.getLocation().x + mainBoard.getSize().width / 2,
+                    mainBoard.getLocation().y);
             targetBoard=new TargetBoard();
             targetBoard.createWindow();
             dispose();
