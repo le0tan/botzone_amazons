@@ -33,9 +33,12 @@ public class AmazonsGUI extends BasicAmazonsGUI {
 
     private int playMode = 0;
     private int declaredResult = 0;
-    private ResultWindow resultWindow;
+    public int level = 0;
+    private static JLabel resultLabel;
+    private ResultWindow resultWindow = new ResultWindow();
     private ControlPanel controlPanel;
-    private Levels levels;
+    private TargetBoardGUI tbg = new TargetBoardGUI();
+    private ControlPanelForPuzzle controlPanelForPuzzle = new ControlPanelForPuzzle();
     private AmazonsGUI highestLevelReferenceToThis = this;
     RandomAI rai = new RandomAI();
 
@@ -113,23 +116,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         }
         if (playMode == 3) {
             runAI();
-            int result = cb.declareResult();
-            resultWindow = new ResultWindow();
-            switch (result) {
-            case 0:
-                resultWindow.createWindow("The black wins!");
-                break;
-            case 1:
-                resultWindow.createWindow("The white wins!");
-                break;
-            case 2:
-                resultWindow.createWindow("This is a tie");
-                break;
-            default:
-                break;
-            }
-            if (result != -1)
-                declaredResult = 1;
+            checkResult();
             return;
         }
         Pair p = new Pair(x, y);
@@ -191,6 +178,15 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             }
         }
 
+        if (playMode != 4) {
+            checkResult();
+        }
+        if (playMode == 4) {
+            checkResultForPuzzle();
+        }
+    }
+
+    private void checkResult() {
         int result = cb.declareResult();
         switch (result) {
         case 0:
@@ -209,7 +205,22 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             declaredResult = 1;
     }
 
-    private static JLabel resultLabel;
+    private void checkResultForPuzzle() {
+        boolean check = true;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if ((this.cb.board[i][j] != null && tbg.cb.board[i][j] != null
+                        && !this.cb.board[i][j].equals(tbg.cb.board[i][j]))
+                        || (this.cb.board[i][j] != null && tbg.cb.board[i][j] == null)
+                        || (this.cb.board[i][j] == null && tbg.cb.board[i][j] != null))
+                    check = false;
+            }
+        }
+        if (check) {
+            resultWindow.createWindow("You win!");
+            declaredResult = 1;
+        }
+    }
 
     public void initMainFrame() {
         // Get the default size of our windows
@@ -227,35 +238,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Amazons");
 
-        // window action listener
-        controlPanel = new ControlPanel();
-        controlPanel.setVisible(false);
-        WindowAdapter wa1 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                controlPanel.setState(e.getNewState());
-            }
-        };
-        JFrame currentMainframe = this;
-        WindowAdapter wa2 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                currentMainframe.setState(e.getNewState());
-            }
-        };
-        this.addWindowStateListener(wa1);
-        controlPanel.addWindowStateListener(wa2);
-
-        // window movement listener
-        ComponentAdapter ca = new ComponentAdapter() {
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                controlPanel.setLocationRelativeTo(currentMainframe);
-                Point p = currentMainframe.getLocation();
-                controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
-            }
-        };
-        this.addComponentListener(ca);
+        addWindowListener();
 
         getContentPane().add(squaresPanel, BorderLayout.CENTER);
         setVisible(false);
@@ -272,6 +255,94 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         setBounds(boardSize / 4, boardSize / 4, boardSize, boardSize);
         centreWindow(this);
         pack();
+    }
+
+    private void addWindowListener() {
+        // window action listener
+        JFrame currentMainframe = this;
+        controlPanel = new ControlPanel();
+        controlPanel.setVisible(false);
+        WindowAdapter wa1 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                controlPanel.setState(e.getNewState());
+            }
+        };
+        WindowAdapter wa2 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                tbg.setState(e.getNewState());
+            }
+        };
+        WindowAdapter wa3 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                controlPanelForPuzzle.setState(e.getNewState());
+            }
+        };
+        WindowAdapter wa4 = new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                currentMainframe.setState(e.getNewState());
+            }
+        };
+        this.addWindowStateListener(wa1);
+        this.addWindowStateListener(wa2);
+        this.addWindowStateListener(wa3);
+        controlPanel.addWindowStateListener(wa4);
+        controlPanelForPuzzle.addWindowStateListener(wa4);
+        controlPanelForPuzzle.addWindowStateListener(wa2);
+        tbg.addWindowStateListener(wa4);
+        tbg.addWindowStateListener(wa3);
+        
+
+        // window movement listener
+        ComponentAdapter ca1 = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                controlPanel.setLocationRelativeTo(currentMainframe);
+                Point p = currentMainframe.getLocation();
+                controlPanel.setLocation(new Point(p.x, p.y + currentMainframe.getHeight()));
+            }
+        };
+        ComponentAdapter ca2 = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                tbg.setLocationRelativeTo(currentMainframe);
+                currentMainframe.setLocationRelativeTo(tbg);
+                Point p = currentMainframe.getLocation();
+                tbg.setLocation(new Point(p.x - currentMainframe.getWidth(), p.y));
+            }
+        };
+        ComponentAdapter ca3 = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                controlPanelForPuzzle.setLocationRelativeTo(currentMainframe);
+                Point p = currentMainframe.getLocation();
+                controlPanelForPuzzle
+                        .setLocation(new Point(p.x - currentMainframe.getWidth(), p.y + currentMainframe.getHeight()));
+            }
+        };
+        // ComponentAdapter ca4 = new ComponentAdapter() {
+        //     @Override
+        //     public void componentMoved(ComponentEvent e) {
+        //         controlPanelForPuzzle.setLocationRelativeTo(tbg);
+        //         Point p = currentMainframe.getLocation();
+        //         controlPanelForPuzzle
+        //                 .setLocation(new Point(p.x - currentMainframe.getWidth(), p.y + currentMainframe.getHeight()));
+        //     }
+        // };
+        // ComponentAdapter ca5 = new ComponentAdapter() {
+        //     @Override
+        //     public void componentMoved(ComponentEvent e) {
+        //         currentMainframe.setLocationRelativeTo(tbg);
+        //         Point p = tbg.getLocation();
+        //         currentMainframe.setLocation(new Point(p.x + tbg.getWidth(), p.y));
+        //     }
+        // };
+        this.addComponentListener(ca1);
+        this.addComponentListener(ca2);
+        this.addComponentListener(ca3);
     }
 
     public void showChessBoard() {
@@ -394,6 +465,8 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             String cmd = event.getActionCommand();
             switch (cmd) {
             case "1":
+                playMode = 0;
+                centreWindow(highestLevelReferenceToThis);
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
@@ -401,6 +474,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 break;
             case "2":
                 playMode = 1;
+                centreWindow(highestLevelReferenceToThis);
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
@@ -408,6 +482,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 break;
             case "3":
                 playMode = 2;
+                centreWindow(highestLevelReferenceToThis);
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
@@ -415,6 +490,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 break;
             case "4":
                 playMode = 3;
+                centreWindow(highestLevelReferenceToThis);
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
@@ -422,8 +498,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 break;
             case "5":
                 playMode = 4;
-                levels = new Levels();
-                levels.createWindow();
+                new Levels().createWindow();
                 dispose();
                 break;
             default:
@@ -460,18 +535,14 @@ public class AmazonsGUI extends BasicAmazonsGUI {
 
         public void actionPerformed(ActionEvent event) {
             String cmd = event.getActionCommand();
-            int level = Integer.parseInt(cmd);
-            TargetBoardGUI tbg = new TargetBoardGUI();
-            ChessBoard targetBoard = new ChessBoard();
-            AmazonsAI randomAI = new RandomAI();
-            for(int i=0;i<level;i++) {
-                targetBoard.moveStep(randomAI.nextMove(targetBoard));
-            }
+            level = Integer.parseInt(cmd);
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            highestLevelReferenceToThis.setLocation(dim.width / 2, highestLevelReferenceToThis.getLocation().y);
+            showChessBoard();
+            tbg = new TargetBoardGUI();
             tbg.initMainFrame();
-            tbg.initTargetBoard(targetBoard, highestLevelReferenceToThis);
-            // controlPanel.createWindow();
-            // squaresPanel.setLocation(squaresPanel.getLocation().x + squaresPanel.getSize().width / 2,
-            //         squaresPanel.getLocation().y);
+            tbg.initTargetBoard(highestLevelReferenceToThis, level);
+            controlPanelForPuzzle.createWindow(tbg);
             dispose();
         }
     }
@@ -545,6 +616,131 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 }
                 if (playMode == 2 && cb.history.size() == 0) {
                     runAI();
+                }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    public class ControlPanelForPuzzle extends JFrame implements ActionListener {
+        private boolean isCreated = false;
+        private TargetBoardGUI targetGUI;
+
+        public ControlPanelForPuzzle createWindow(TargetBoardGUI targetGUI) {
+            this.targetGUI = targetGUI;
+            if (isCreated) {
+                return this;
+            } else {
+                this.init();
+                isCreated = true;
+                return this;
+            }
+        }
+
+        private void init() {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            setTitle("Command Center");
+            setPreferredSize(new Dimension(highestLevelReferenceToThis.getWidth() * 2, 70));
+            setLocation(highestLevelReferenceToThis.getLocation().x - highestLevelReferenceToThis.getWidth(),
+                    highestLevelReferenceToThis.getLocation().y + highestLevelReferenceToThis.getHeight());
+            // setSize(motherGUI.getWidth(),70);
+            setUndecorated(true);
+            setLayout(new GridLayout(1, 6));
+            setVisible(true);
+
+            JButton button1 = new JButton("Undo");
+            button1.setActionCommand("UNDO");
+            button1.addActionListener(this);
+
+            JButton button2 = new JButton("Reset");
+            button2.setActionCommand("RESET");
+            button2.addActionListener(this);
+
+            JButton button3 = new JButton("Next Level");
+            button3.setActionCommand("NEXT");
+            button3.addActionListener(this);
+
+            JButton button4 = new JButton("Last Level");
+            button4.setActionCommand("LAST");
+            button4.addActionListener(this);
+
+            JButton button5 = new JButton("Choose Level");
+            button5.setActionCommand("CHOOSE");
+            button5.addActionListener(this);
+
+            JButton button6 = new JButton("Back to Menu");
+            button6.setActionCommand("BACK");
+            button6.addActionListener(this);
+
+            getContentPane().add(button6);
+            getContentPane().add(button5);
+            getContentPane().add(button4);
+            getContentPane().add(button3);
+            getContentPane().add(button1);
+            getContentPane().add(button2);
+
+            pack();
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            String cmd = event.getActionCommand();
+            switch (cmd) {
+            case "BACK":
+                closeChessBoard();
+                targetGUI.closeChessBoard();
+                new StartingScreen().createWindow();
+                declaredResult = 0;
+                if (resultWindow != null) {
+                    resultWindow.closeWindow();
+                }
+                dispose();
+                break;
+            case "CHOOSE":
+                closeChessBoard();
+                targetGUI.closeChessBoard();
+                new Levels().createWindow();
+                declaredResult = 0;
+                if (resultWindow != null) {
+                    resultWindow.closeWindow();
+                }
+                dispose();
+                break;
+            case "LAST":
+                if (level > 4) {
+                    level--;
+                    resetBoard();
+                    tbg.clearBoard();
+                    tbg.initTargetBoard(highestLevelReferenceToThis, level);
+                    declaredResult = 0;
+                    if (resultWindow != null) {
+                        resultWindow.closeWindow();
+                    }
+                }
+                break;
+            case "NEXT":
+                if (level < 23) {
+                    level++;
+                    resetBoard();
+                    tbg.clearBoard();
+                    tbg.initTargetBoard(highestLevelReferenceToThis, level);
+                    declaredResult = 0;
+                    if (resultWindow != null) {
+                        resultWindow.closeWindow();
+                    }
+                }
+                break;
+            case "RESET":
+                resetBoard();
+                declaredResult = 0;
+                if (resultWindow != null) {
+                    resultWindow.closeWindow();
+                }
+                break;
+            case "UNDO":
+                if (declaredResult == 0) {
+                    undo();
                 }
                 break;
             default:
