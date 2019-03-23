@@ -244,6 +244,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         // init window
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Amazons");
+        setUndecorated(true);
 
         addWindowListener();
 

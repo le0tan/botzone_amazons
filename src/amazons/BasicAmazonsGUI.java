@@ -68,7 +68,7 @@ public class BasicAmazonsGUI extends JDialog {
         // init window
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Amazons");
-
+        setUndecorated(true);
         getContentPane().add(squaresPanel, BorderLayout.CENTER);
         setVisible(true);
         preferredSize.width = boardSize;
@@ -123,6 +123,7 @@ public class BasicAmazonsGUI extends JDialog {
 
     protected void createSquares() {
         squaresPanel.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
+        squaresPanel.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(6), new Color(147, 80, 201)));
         for (int i = 0; i < NUM_OF_ROWS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
                 final int a = i, b = j;
