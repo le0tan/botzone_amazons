@@ -16,6 +16,7 @@ import java.awt.Shape;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,7 +41,7 @@ import java.util.List;
 /**
  * AmazonsGUI
  */
-public class BasicAmazonsGUI extends JFrame {
+public class BasicAmazonsGUI extends JDialog {
 
     protected JPanel squaresPanel = new JPanel();
     // protected static JPanel glass=new JPanel();
@@ -65,7 +66,7 @@ public class BasicAmazonsGUI extends JFrame {
         }
 
         // init window
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Amazons");
 
         getContentPane().add(squaresPanel, BorderLayout.CENTER);

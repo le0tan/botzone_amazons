@@ -9,6 +9,7 @@ import java.awt.Point;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -241,7 +242,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         }
 
         // init window
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Amazons");
 
         addWindowListener();
@@ -265,41 +266,40 @@ public class AmazonsGUI extends BasicAmazonsGUI {
 
     private void addWindowListener() {
         // window action listener
-        JFrame currentMainframe = this;
+        JDialog currentMainframe = this;
         controlPanel = new ControlPanel();
         controlPanel.setVisible(false);
-        WindowAdapter wa1 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                controlPanel.setState(e.getNewState());
-            }
-        };
-        WindowAdapter wa2 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                tbg.setState(e.getNewState());
-            }
-        };
-        WindowAdapter wa3 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                controlPanelForPuzzle.setState(e.getNewState());
-            }
-        };
-        WindowAdapter wa4 = new WindowAdapter() {
-            @Override
-            public void windowStateChanged(WindowEvent e) {
-                currentMainframe.setState(e.getNewState());
-            }
-        };
-        this.addWindowStateListener(wa1);
-        this.addWindowStateListener(wa2);
-        this.addWindowStateListener(wa3);
-        controlPanel.addWindowStateListener(wa4);
-        controlPanelForPuzzle.addWindowStateListener(wa4);
-        controlPanelForPuzzle.addWindowStateListener(wa2);
-        tbg.addWindowStateListener(wa4);
-        tbg.addWindowStateListener(wa3);
+        // WindowAdapter wa1 = new WindowAdapter() {
+        //     @Override
+        //     public void windowStateChanged(WindowEvent e) {
+        //         controlPanel.setState(e.getNewState());
+        //     }
+        // };
+        //     @Override
+        //     public void windowStateChanged(WindowEvent e) {
+        //         tbg.setState(e.getNewState());
+        //     }
+        // };
+        // WindowAdapter wa3 = new WindowAdapter() {
+        //     @Override
+        //     public void windowStateChanged(WindowEvent e) {
+        //         controlPanelForPuzzle.setState(e.getNewState());
+        //     }
+        // };
+        // WindowAdapter wa4 = new WindowAdapter() {
+        //     @Override
+        //     public void windowStateChanged(WindowEvent e) {
+        //         currentMainframe.setState(e.getNewState());
+        //     }
+        // };
+        // this.addWindowStateListener(wa1);
+        // this.addWindowStateListener(wa2);
+        // this.addWindowStateListener(wa3);
+        // controlPanel.addWindowStateListener(wa4);
+        // controlPanelForPuzzle.addWindowStateListener(wa4);
+        // controlPanelForPuzzle.addWindowStateListener(wa2);
+        // tbg.addWindowStateListener(wa4);
+        // tbg.addWindowStateListener(wa3);
         
 
         // window movement listener
@@ -329,26 +329,28 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                         .setLocation(new Point(p.x - currentMainframe.getWidth(), p.y + currentMainframe.getHeight()));
             }
         };
-        // ComponentAdapter ca4 = new ComponentAdapter() {
-        //     @Override
-        //     public void componentMoved(ComponentEvent e) {
-        //         controlPanelForPuzzle.setLocationRelativeTo(tbg);
-        //         Point p = currentMainframe.getLocation();
-        //         controlPanelForPuzzle
-        //                 .setLocation(new Point(p.x - currentMainframe.getWidth(), p.y + currentMainframe.getHeight()));
-        //     }
-        // };
-        // ComponentAdapter ca5 = new ComponentAdapter() {
-        //     @Override
-        //     public void componentMoved(ComponentEvent e) {
-        //         currentMainframe.setLocationRelativeTo(tbg);
-        //         Point p = tbg.getLocation();
-        //         currentMainframe.setLocation(new Point(p.x + tbg.getWidth(), p.y));
-        //     }
-        // };
+        ComponentAdapter ca4 = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                controlPanelForPuzzle.setLocationRelativeTo(tbg);
+                Point p = currentMainframe.getLocation();
+                controlPanelForPuzzle
+                        .setLocation(new Point(p.x - currentMainframe.getWidth(), p.y + currentMainframe.getHeight()));
+            }
+        };
+        ComponentAdapter ca5 = new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                currentMainframe.setLocationRelativeTo(tbg);
+                Point p = tbg.getLocation();
+                currentMainframe.setLocation(new Point(p.x + tbg.getWidth(), p.y));
+            }
+        };
         this.addComponentListener(ca1);
         this.addComponentListener(ca2);
         this.addComponentListener(ca3);
+        // tbg.addComponentListener(ca5);
+        // this.addComponentListener(ca5);
     }
 
     public void showChessBoard() {
@@ -558,7 +560,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         }
     }
 
-    public class ControlPanel extends JFrame implements ActionListener {
+    public class ControlPanel extends JDialog implements ActionListener {
         private boolean isCreated = false;
 
         public ControlPanel createWindow() {
@@ -635,7 +637,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         }
     }
 
-    public class ControlPanelForPuzzle extends JFrame implements ActionListener {
+    public class ControlPanelForPuzzle extends JDialog implements ActionListener {
         private boolean isCreated = false;
         private TargetBoardGUI targetGUI;
 
