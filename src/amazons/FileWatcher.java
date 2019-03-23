@@ -1,3 +1,4 @@
+package amazons;
 
 /**
  * FileWatcher

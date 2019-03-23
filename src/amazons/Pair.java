@@ -1,3 +1,5 @@
+package amazons;
+
 public class Pair {
     int x;
     int y;
