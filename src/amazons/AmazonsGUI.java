@@ -598,9 +598,9 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             button3.setActionCommand("UNDO");
             button3.addActionListener(this);
 
+            getContentPane().add(button2);
             getContentPane().add(button3);
             getContentPane().add(button1);
-            getContentPane().add(button2);
 
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
             setBounds((dim.width - preferredSize.width) / 2, (dim.height + preferredSize.height) / 2,
@@ -661,7 +661,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                     highestLevelReferenceToThis.getLocation().y + highestLevelReferenceToThis.getHeight());
             // setSize(motherGUI.getWidth(),70);
             setUndecorated(true);
-            setLayout(new GridLayout(1, 6));
+            setLayout(new GridLayout(1, 7));
             setVisible(true);
 
             JButton button1 = new JButton("Undo");
@@ -680,17 +680,21 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             button4.setActionCommand("LAST");
             button4.addActionListener(this);
 
-            JButton button5 = new JButton("Choose Level");
+            JButton button5 = new JButton("<html>Choose<br> Level</html>");
             button5.setActionCommand("CHOOSE");
             button5.addActionListener(this);
 
-            JButton button6 = new JButton("Back to Menu");
+            JButton button6 = new JButton("<html>Back to<br> Menu</html>");
             button6.setActionCommand("BACK");
             button6.addActionListener(this);
+
+            String s=Integer.toString(level-3);
+            JLabel label7=new JLabel("Level "+s,SwingConstants.CENTER);
 
             getContentPane().add(button6);
             getContentPane().add(button5);
             getContentPane().add(button4);
+            getContentPane().add(label7);   
             getContentPane().add(button3);
             getContentPane().add(button1);
             getContentPane().add(button2);
@@ -732,6 +736,13 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                     if (resultWindow != null) {
                         resultWindow.closeWindow();
                     }
+                    // String s=Integer.toString(level-3);
+                    // JLabel label7=new JLabel("Level "+s,SwingConstants.CENTER);
+                    // controlPanelForPuzzle.remove(3);
+                    // controlPanelForPuzzle.add(label7,3);
+                    dispose();
+                    controlPanelForPuzzle=new ControlPanelForPuzzle();
+                    controlPanelForPuzzle.createWindow(tbg);
                 }
                 break;
             case "NEXT":
@@ -744,6 +755,9 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                     if (resultWindow != null) {
                         resultWindow.closeWindow();
                     }
+                    dispose();
+                    controlPanelForPuzzle=new ControlPanelForPuzzle();
+                    controlPanelForPuzzle.createWindow(tbg);
                 }
                 break;
             case "RESET":

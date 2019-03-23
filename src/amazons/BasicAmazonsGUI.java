@@ -123,14 +123,14 @@ public class BasicAmazonsGUI extends JDialog {
 
     protected void createSquares() {
         squaresPanel.setLayout(new GridLayout(NUM_OF_ROWS, NUM_OF_COLS));
-        squaresPanel.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(6), new Color(147, 80, 201)));
+        // squaresPanel.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(6), new Color(147, 80, 201)));
         for (int i = 0; i < NUM_OF_ROWS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
                 final int a = i, b = j;
                 JPanel square = new JPanel();
                 square.setBorder(BorderFactory.createStrokeBorder(new BasicStroke(2)));
                 square.setForeground(new Color(0, 0, 0));
-                square.setBackground(new Color(200, 200, 200));
+                square.setBackground(new Color(170, 170, 170));
                 squaresPanel.add(square);
                 this.pack();
                 // We don't know why the width changes here.
@@ -182,8 +182,9 @@ public class BasicAmazonsGUI extends JDialog {
             graph2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             graph2.setColor(Color.BLUE);
             // System.out.printf("%f \n",SQUARE_COL);
-            Shape circle = new Ellipse2D.Double(SQUARE_COL / 10 * 1.7, SQUARE_COL / 10 * 1.5, SQUARE_COL / 10 * 8,
-                    SQUARE_COL / 10 * 8);
+            Dimension di=squaresPanel.getComponent(0).getSize();
+            int d=34;
+            Shape circle = new Ellipse2D.Double(di.width / 2-d/2, di.height / 2-d/2, d, d);
             Color c = Color.WHITE;
             if (this.color == 0)
                 c = Color.BLACK;
