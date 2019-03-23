@@ -12,7 +12,7 @@ public class TargetBoardGUI extends BasicAmazonsGUI {
 
     public void initTargetBoard(AmazonsGUI motherGUI,int level) {
         String s;
-        s="Level"+Integer.toString(level);
+        s="Level "+Integer.toString(level-3);
         setTitle(s);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setLocation(motherGUI.getLocation().x - preferredSize.width, motherGUI.getLocation().y);

@@ -34,11 +34,14 @@ public class AmazonsGUI extends BasicAmazonsGUI {
     private int playMode = 0;
     private int declaredResult = 0;
     public int level = 0;
+    private boolean withinStep=false;
     private static JLabel resultLabel;
     private ResultWindow resultWindow = new ResultWindow();
     private ControlPanel controlPanel;
     private TargetBoardGUI tbg = new TargetBoardGUI();
     private ControlPanelForPuzzle controlPanelForPuzzle = new ControlPanelForPuzzle();
+    private Levels levels;
+    private ControlPanelForLevels controlPanelForLevels;
     private AmazonsGUI highestLevelReferenceToThis = this;
     RandomAI rai = new RandomAI();
 
@@ -128,6 +131,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 if (cb.chessToMove.possiblePositions(cb).get(i).x == p.x
                         && cb.chessToMove.possiblePositions(cb).get(i).y == p.y) {
                     legal = true;
+                    withinStep=true;
                     break;
                 }
             }
@@ -137,6 +141,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 if (cb.movedChess.possiblePositions(cb).get(i).x == p.x
                         && cb.movedChess.possiblePositions(cb).get(i).y == p.y) {
                     legal = true;
+                    withinStep=true;
                     break;
                 }
             }
@@ -165,6 +170,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 }
                 placePiece(x, y, 2);
                 cb.putObstacle(x, y);
+                withinStep=false;
             }
         } else if (cb.hasPiece(x, y) && (cb.board[x][y].color == cb.colorForTurn())) {
             cb.pressed[x][y] = true;
@@ -498,7 +504,8 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 break;
             case "5":
                 playMode = 4;
-                new Levels().createWindow();
+                levels=new Levels();
+                levels.createWindow();
                 dispose();
                 break;
             default:
@@ -530,6 +537,8 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 getContentPane().add(buttons[i]);
                 buttons[i].repaint();
             }
+            controlPanelForLevels=new ControlPanelForLevels();
+            controlPanelForLevels.createWindow();
             pack();
         }
 
@@ -542,7 +551,9 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             tbg = new TargetBoardGUI();
             tbg.initMainFrame();
             tbg.initTargetBoard(highestLevelReferenceToThis, level);
+            controlPanelForPuzzle=new ControlPanelForPuzzle();
             controlPanelForPuzzle.createWindow(tbg);
+            controlPanelForLevels.dispose();
             dispose();
         }
     }
@@ -611,10 +622,10 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 break;
             case "UNDO":
                 undo();
-                if (playMode == 1 || playMode == 2) {
+                if ((playMode == 1 || playMode == 2)&&!withinStep) {
                     undo();
                 }
-                if (playMode == 2 && cb.history.size() == 0) {
+                if ((playMode == 2 && cb.history.size() == 0)&&!withinStep) {
                     runAI();
                 }
                 break;
@@ -700,7 +711,8 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             case "CHOOSE":
                 closeChessBoard();
                 targetGUI.closeChessBoard();
-                new Levels().createWindow();
+                levels=new Levels();
+                levels.createWindow();
                 declaredResult = 0;
                 if (resultWindow != null) {
                     resultWindow.closeWindow();
@@ -739,9 +751,44 @@ public class AmazonsGUI extends BasicAmazonsGUI {
                 }
                 break;
             case "UNDO":
-                if (declaredResult == 0) {
+                if (declaredResult == 0&&!withinStep) {
                     undo();
                 }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    private class ControlPanelForLevels extends JFrame implements ActionListener {
+        public ControlPanelForLevels createWindow() {
+                this.init();
+                return this;
+        }
+
+        private void init() {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            setPreferredSize(new Dimension(levels.getWidth(), 60));
+            setLocation(levels.getLocation().x,levels.getLocation().y+levels.getHeight());
+            setUndecorated(true);
+            setVisible(true);
+
+            JButton button2 = new JButton("Back to Menu");
+            button2.setActionCommand("BACK");
+            button2.addActionListener(this);
+
+            getContentPane().add(button2);
+            pack();
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            String cmd = event.getActionCommand();
+            switch (cmd) {
+            case "BACK":
+                new StartingScreen().createWindow();
+                levels.dispose();
+                dispose();
                 break;
             default:
                 break;
@@ -756,7 +803,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         }
 
         private void init(String content) {
-            setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
             setTitle("Result");
             setVisible(true);
             setPreferredSize(new Dimension(200, 100));

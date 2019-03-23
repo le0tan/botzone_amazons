@@ -115,6 +115,9 @@ public class BasicAmazonsGUI extends JFrame {
             placePiece(cb.coordBlack[0][i], cb.coordBlack[1][i], 0);
             placePiece(cb.coordWhite[0][i], cb.coordWhite[1][i], 1);
         }
+        for (int i = 0; i < 64; i++) {
+            squaresPanel.getComponent(i).setBackground(new Color(200, 200, 200));
+        }
     }
 
     protected void createSquares() {
