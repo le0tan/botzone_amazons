@@ -475,7 +475,10 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             switch (cmd) {
             case "1":
                 playMode = 0;
+<<<<<<< HEAD:src/amazons/AmazonsGUI.java
                 centreWindow(highestLevelReferenceToThis);
+=======
+>>>>>>> master:AmazonsGUI.java
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
