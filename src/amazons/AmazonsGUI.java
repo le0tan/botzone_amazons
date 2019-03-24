@@ -423,8 +423,8 @@ public class AmazonsGUI extends BasicAmazonsGUI {
         private void init() {
             setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             setTitle("Starting Screen");
-            setPreferredSize(new Dimension(200, 400));
-            this.setSize(200, 400);
+            setPreferredSize(new Dimension(300, 400));
+            this.setSize(300, 400);
             centreWindow(this);
             // setUndecorated(true);
             setLayout(new GridLayout(5, 1));
@@ -475,10 +475,7 @@ public class AmazonsGUI extends BasicAmazonsGUI {
             switch (cmd) {
             case "1":
                 playMode = 0;
-<<<<<<< HEAD:src/amazons/AmazonsGUI.java
                 centreWindow(highestLevelReferenceToThis);
-=======
->>>>>>> master:AmazonsGUI.java
                 showChessBoard();
                 controlPanel.createWindow();
                 controlPanel.setVisible(true);
@@ -824,9 +821,10 @@ public class AmazonsGUI extends BasicAmazonsGUI {
 
         private void init(String content) {
             setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-            setTitle("Result");
+            // setTitle("Result");
+            setUndecorated(true);
+            setPreferredSize(new Dimension(150, 70));
             setVisible(true);
-            setPreferredSize(new Dimension(200, 100));
             // setResizable(false);
             resultLabel = new JLabel(content, SwingConstants.CENTER);
             getContentPane().add(resultLabel);

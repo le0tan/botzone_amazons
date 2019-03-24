@@ -1,21 +1,47 @@
-# Amazons
+#**Botzone_Amazons README**
+-----------
+##**功能简介**
+此程序为一个亚马逊棋游戏程序，它提供以下4种游戏模式：
+1. 双人本地对战
+2. 玩家与游戏程序对战
+3. 观看游戏程序之间的对战
+4. 通关模式的棋盘还原游戏
 
-This project is a JAVA re-implementation of [BOTZONE](cn.botzone.org) that's created and maintained by PKU.
+-----------
+##**使用方法**
+###打开程序
+如果玩家的电脑上有java编译环境，可直接打开amazons.jar运行，如果没有，那么玩家需要使用amazons_setup.exe安装程序。
 
-## Dev Plan
+###进行游戏
+####模式选择界面
+当玩家打开游戏时，首先出现的是游戏模式选择界面，从上至下依次是：
+* 双人本地对战
+* 玩家作为黑方与游戏程序对战
+* 玩家作为白方与游戏程序对战
+* 观看游戏程序之间的对战
+* 通关模式的棋盘还原游戏
 
-- Design the classes and loading procedure ✔
-- Implement the CLI interface using `ChessBoard`, `ChessPiece` and `Amazons` only ✔
-- Implement the GUI (hard and unfamiliar) ✔
-- Refine local playing experience ✔
-- Implement the AI feature inside `BotAmazons` ✔
-- Implement LAN multiplayer (future)
-- Implement online multiplayer (easy peasy after LAN)
+####亚马逊棋基本游戏规则
+游戏初始状态，双方各有4颗棋子放置于棋盘相应位置。每一次移动，需要先从己方4颗棋子中选择一颗棋子，根据国际象棋中皇后走法将其移动到某一位置后，再在其新位置上的皇后走法中选择一个位置防止一个障碍物。黑棋先行，黑白双方交替进行，先使用障碍物使对方棋子全部无法行动，且己方棋子仍有能行动者为胜。
 
-## Update on 3/3/2019
+####单步操作
+* 移动棋子：在己方回合，从己方控制的4颗棋子中选择一颗，在其所在的方格鼠标左键点击一次，棋盘上会显示该棋子可移动的位置，选择你想要放置棋子的位置，左键点击该方格，棋子将移动到该位置。
+* 放置障碍物：移动一颗棋子后，棋盘上会显示可放置障碍物的位置，选择一个位置鼠标左键点击即可放置障碍物，棋盘中障碍物显示为蓝色。
+* 悔棋：选中一颗棋子后，若希望更换棋子，可再点击一次已选中的棋子取消当前选择；若已移动棋子，则需在进行完该步操作后再点击下方控制面板中“Undo”按键悔棋。
 
-If you're using VSCode, you should enter `src` as the root directory now.
+####游戏模式及相应操作说明
+* 双人本地对战模式：两人在同一台终端上进行游戏，可分别作为黑方与白方共同游戏。
+* 玩家与游戏程序对战：玩家可选择作为黑方或白方，玩家进行一步操作后程序会马上进行下一步操作，直到游戏结束。
+*观看游戏程序之间的对战：点击棋盘上任意位置，程序会自动进行一回合游戏，可连续点击棋盘，直到游戏结束。
+4.通关模式的棋盘还原游戏：界面左方为目标棋盘，玩家需要以亚马逊棋的标准规则控制右方棋盘中的两方棋子，使棋盘布局与左方相同。选择该模式后首先会进入关卡选择模式，1~20关分别对应4~24步操作。
 
-Compile files with `javac -d . ./amazons/*.java`, if nothing's changed in `Main`, you don't need to compile it again.
+####控制面板
+棋盘下方为控制面板。控制面板的功能如下：
+* 对战游戏模式（前3种游戏模式）：共3个按键，从左到右依次为：回到主菜单，悔棋，恢复棋盘到初始状态。
+* 通关游戏模式：共6个按键，从左到右依次为：回到主菜单，回到关卡选择界面，上一关，下一关，悔棋，恢复棋盘到初始状态。
 
-When adding new files, please add it inside `amazons` folder and include `package amazons` at the beginning of `.java` file.
+####结果公布窗口
+游戏结束时会出现结果公布窗口，如果玩家不慎点击了窗口周围使窗口消失，可以使用Alt+Tab使窗口重新出现，该窗口无法直接关闭，可点击下方控制面板中的“Back to Menu”或“Reset"使其消失。
+
+###关闭程序
+在任何一个有棋盘出现的界面，你无法关闭程序，你需要先点击“Back to Menu”按键，回到主菜单后关闭程序。
